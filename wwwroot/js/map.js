@@ -39,8 +39,8 @@ function createCustomPinIcon(isHighlighted) {
     const bgColor = isHighlighted ? '#e76f51' : '#00a896';
     const borderColor = '#ffffff';
     const svgHtml = `
-        <div style="position: relative; width: 36px; height: 44px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); transition: transform 0.2s ease;">
-            <svg viewBox="0 0 36 44" width="36" height="44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div style="position: relative; width: 26px; height: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)); transition: transform 0.2s ease;">
+            <svg viewBox="0 0 36 44" width="26" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 0C8.058 0 0 8.058 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.058 27.942 0 18 0z" fill="${bgColor}" stroke="${borderColor}" stroke-width="2"/>
                 <!-- Tooth / Medical cross icon -->
                 <path d="M14 11h8c1.5 0 2.5 1 2.5 2.5v1c0 1.5-1 2.5-2.5 2.5h-8C12.5 17 11.5 16 11.5 14.5v-1C11.5 12 12.5 11 14 11z" fill="#ffffff" opacity="0.9"/>
@@ -52,9 +52,9 @@ function createCustomPinIcon(isHighlighted) {
     return window.L.divIcon({
         className: 'cebu-custom-pin',
         html: svgHtml,
-        iconSize: [36, 44],
-        iconAnchor: [18, 44],
-        popupAnchor: [0, -42]
+        iconSize: [26, 32],
+        iconAnchor: [13, 32],
+        popupAnchor: [0, -30]
     });
 }
 
@@ -85,10 +85,11 @@ window.cebuMapInterop = {
             scrollWheelZoom: true
         });
 
-        // OpenStreetMap tile layer (keyless, free)
-        window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // Muted light basemap (CARTO, keyless, free) — low color to keep focus on pins
+        window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+            subdomains: 'abcd',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a>'
         }).addTo(map);
 
         window.cebuMaps[elementId] = {
