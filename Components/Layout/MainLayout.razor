@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
@@ -6,13 +6,39 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <div class="top-row px-4 d-flex justify-content-between align-items-center bg-white border-bottom shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-light text-dark border d-none d-md-inline-block">
+                    🇵🇭 <strong>Cebu, Philippines</strong> (GMT+8)
+                </span>
+                <span class="text-muted small d-none d-lg-inline-block">
+                    Anchor Rate: <strong>$1 USD ≈ ₱62 PHP</strong>
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="compare" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-block">
+                    Savings Calculator
+                </a>
+                <a href="request" class="btn btn-primary btn-sm px-3 shadow-sm" style="background-color: #00a896; border-color: #009383; font-weight: 600;">
+                    Get Free Quote &rarr;
+                </a>
+            </div>
         </div>
 
-        <article class="content px-4">
+        <article class="content px-3 px-md-4 py-4">
             @Body
         </article>
+
+        <footer class="mt-5 py-4 border-top bg-light text-center text-muted small px-3">
+            <div class="container">
+                <p class="mb-1">
+                    <strong>Cebu Dental Tourism Hub</strong> &bull; Banilad &bull; IT Park &bull; Mandaue &bull; Mabolo &bull; Fuente Osmeña &bull; Mactan
+                </p>
+                <p class="mb-0 text-secondary" style="font-size: 0.8rem;">
+                    * All seed/real clinic pricing, package estimates, and travel expenses are illustrative demo anchors. Final quotes provided directly by clinics in Philippine Pesos (PHP).
+                </p>
+            </div>
+        </footer>
     </main>
 </div>
 

@@ -1,0 +1,96 @@
+@using Microsoft.JSInterop
+@using appdev_sprint.Components.Shared.Stubs
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<div id="@_elementId" class="cebu-leaflet-map-wrapper @Class" style="height: @Height; width: 100%; position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    <div class="map-loading-placeholder" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #64748b; font-size: 13px; z-index: 0;">
+        <span class="spinner-border spinner-border-sm me-2 text-primary" role="status"></span>
+        Loading Metro Cebu Map...
+    </div>
+</div>
+
+<script src="js/map.js"></script>
+
+@code {
+    private readonly string _elementId = "cebu-map-" + Guid.NewGuid().ToString("N")[..8];
+    private DotNetObjectReference<LeafletMap>? _dotNetHelper;
+    private bool _isInitialized = false;
+    private int? _lastHighlightedPinId;
+
+    [Parameter]
+    public IReadOnlyList<ClinicPin>? Pins { get; set; }
+
+    [Parameter]
+    public int? SelectedPinId { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnPinSelected { get; set; }
+
+    [Parameter]
+    public string Height { get; set; } = "450px";
+
+    [Parameter]
+    public string Class { get; set; } = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetHelper = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("cebuMapInterop.initMap", _elementId, _dotNetHelper, Pins ?? Array.Empty<ClinicPin>());
+            _isInitialized = true;
+
+            if (SelectedPinId.HasValue)
+            {
+                await JSRuntime.InvokeVoidAsync("cebuMapInterop.highlightPin", _elementId, SelectedPinId.Value);
+                _lastHighlightedPinId = SelectedPinId;
+            }
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!_isInitialized) return;
+
+        await JSRuntime.InvokeVoidAsync("cebuMapInterop.updatePins", _elementId, Pins ?? Array.Empty<ClinicPin>());
+
+        if (SelectedPinId.HasValue && SelectedPinId != _lastHighlightedPinId)
+        {
+            await JSRuntime.InvokeVoidAsync("cebuMapInterop.highlightPin", _elementId, SelectedPinId.Value);
+            _lastHighlightedPinId = SelectedPinId;
+        }
+    }
+
+    public async Task HighlightPinAsync(int pinId)
+    {
+        if (_isInitialized)
+        {
+            SelectedPinId = pinId;
+            _lastHighlightedPinId = pinId;
+            await JSRuntime.InvokeVoidAsync("cebuMapInterop.highlightPin", _elementId, pinId);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnPinSelectedFromJs(int pinId)
+    {
+        _lastHighlightedPinId = pinId;
+        await OnPinSelected.InvokeAsync(pinId);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_isInitialized)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("cebuMapInterop.destroyMap", _elementId);
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+        }
+
+        _dotNetHelper?.Dispose();
+    }
+}
