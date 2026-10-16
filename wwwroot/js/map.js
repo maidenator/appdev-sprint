@@ -12,13 +12,37 @@ function ensureMutedTileStyle() {
     document.head.appendChild(style);
 }
 
-// Ensure Leaflet styles and scripts are loaded dynamically if not in head
+// Ensure Leaflet styles and scripts are loaded dynamically if not in head.
+// MarkerCluster (keyless, MIT) keeps 40+ province pins readable. Optional: plain pins on CDN failure.
 function ensureLeafletLoaded() {
     return new Promise((resolve, reject) => {
-        if (window.L) {
-            resolve();
-            return;
-        }
+        const loadCss = (id, href) => {
+            if (!document.getElementById(id)) {
+                const link = document.createElement('link');
+                link.id = id;
+                link.rel = 'stylesheet';
+                link.href = href;
+                link.crossOrigin = '';
+                document.head.appendChild(link);
+            }
+        };
+        const loadScript = (id, src) => new Promise((res, rej) => {
+            if (window.L && id === 'leaflet-js') return res();
+            if (document.getElementById(id)) {
+                const el = document.getElementById(id);
+                if (el.dataset.loaded === '1') return res();
+                el.addEventListener('load', () => res());
+                el.addEventListener('error', () => rej(new Error('Failed to load ' + src)));
+                return;
+            }
+            const script = document.createElement('script');
+            script.id = id;
+            script.src = src;
+            script.crossOrigin = '';
+            script.onload = () => { script.dataset.loaded = '1'; res(); };
+            script.onerror = () => rej(new Error('Failed to load ' + src));
+            document.head.appendChild(script);
+        });
 
         if (!document.getElementById('leaflet-css')) {
             const link = document.createElement('link');
@@ -28,13 +52,24 @@ function ensureLeafletLoaded() {
             link.crossOrigin = '';
             document.head.appendChild(link);
         }
+        loadCss('leaflet-cluster-css', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css');
+        loadCss('leaflet-cluster-default-css', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css');
+
+        if (window.L) {
+            loadScript('leaflet-cluster-js', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js')
+                .then(() => resolve()).catch(() => resolve()); // cluster optional
+            return;
+        }
 
         if (!document.getElementById('leaflet-js')) {
             const script = document.createElement('script');
             script.id = 'leaflet-js';
             script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
             script.crossOrigin = '';
-            script.onload = () => resolve();
+            script.onload = () => {
+                loadScript('leaflet-cluster-js', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js')
+                    .then(() => resolve()).catch(() => resolve());
+            };
             script.onerror = () => reject(new Error('Failed to load Leaflet script'));
             document.head.appendChild(script);
         } else {
@@ -105,8 +140,17 @@ window.cebuMapInterop = {
             map: map,
             dotNetRef: dotNetRef,
             markers: {},
-            activePinId: null
+            activePinId: null,
+            pinSignature: null,
+            cluster: null
         };
+
+        if (window.L.markerClusterGroup) {
+            window.cebuMaps[elementId].cluster = window.L.markerClusterGroup({
+                showCoverageOnHover: false,
+                maxClusterRadius: 50
+            }).addTo(map);
+        }
 
         this.updatePins(elementId, pins);
         
@@ -121,12 +165,20 @@ window.cebuMapInterop = {
         if (!state || !state.map) return;
 
         // Remove old markers
+        if (state.cluster) state.cluster.clearLayers();
         for (const id in state.markers) {
             state.markers[id].remove();
         }
         state.markers = {};
 
         if (!pins || pins.length === 0) return;
+
+        // Good behaviour: refit the view only when the pin SET changes (filters,
+        // fresh load). Selecting a pin/card keeps the user's current zoom/center —
+        // highlightPin pans to the marker instead of resetting the view.
+        const signature = pins.map(p => p.id).sort((a, b) => a - b).join(',');
+        const setChanged = state.pinSignature !== signature;
+        state.pinSignature = signature;
 
         const bounds = window.L.latLngBounds();
 
@@ -136,7 +188,9 @@ window.cebuMapInterop = {
             const isSelected = state.activePinId === pin.id;
             const icon = createCustomPinIcon(isSelected);
 
-            const marker = window.L.marker([pin.latitude, pin.longitude], { icon: icon }).addTo(state.map);
+            const marker = window.L.marker([pin.latitude, pin.longitude], { icon: icon });
+            if (state.cluster) state.cluster.addLayer(marker);
+            else marker.addTo(state.map);
 
             const popupContent = `
                 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-width: 180px; padding: 2px;">
@@ -147,7 +201,7 @@ window.cebuMapInterop = {
                     </div>
                     <div style="border-top: 1px solid #e2e8f0; padding-top: 6px; display: flex; justify-content: space-between; align-items: center;">
                         <a href="/clinics/${pin.id}" style="display: inline-block; background-color: #00627d; color: #ffffff; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; text-decoration: none;">
-                            View Clinic & Pricing &rarr;
+                            View clinic
                         </a>
                     </div>
                 </div>
@@ -165,10 +219,12 @@ window.cebuMapInterop = {
             bounds.extend([pin.latitude, pin.longitude]);
         });
 
-        if (pins.length > 1 && bounds.isValid()) {
-            state.map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
-        } else if (pins.length === 1) {
-            state.map.setView([pins[0].latitude, pins[0].longitude], 14);
+        if (setChanged) {
+            if (pins.length > 1 && bounds.isValid()) {
+                state.map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+            } else if (pins.length === 1) {
+                state.map.setView([pins[0].latitude, pins[0].longitude], 14);
+            }
         }
     },
 
@@ -179,13 +235,20 @@ window.cebuMapInterop = {
         state.activePinId = pinId;
 
         // Reset all icons and highlight the selected one
+        const reveal = (marker) => {
+            state.map.panTo(marker.getLatLng(), { animate: true, duration: 0.6 });
+            marker.openPopup();
+        };
         for (const id in state.markers) {
             const marker = state.markers[id];
             const isTarget = parseInt(id) === parseInt(pinId);
             marker.setIcon(createCustomPinIcon(isTarget));
             if (isTarget) {
-                state.map.panTo(marker.getLatLng(), { animate: true, duration: 0.6 });
-                marker.openPopup();
+                if (state.cluster && state.cluster.zoomToShowLayer) {
+                    state.cluster.zoomToShowLayer(marker, () => reveal(marker));
+                } else {
+                    reveal(marker);
+                }
             }
         }
     },
@@ -196,9 +259,18 @@ window.cebuMapInterop = {
             try {
                 state.map.remove();
             } catch (e) {
-                console.warn('Error destroying map:', e);
+                console.warn('Error removing old map:', e);
             }
             delete window.cebuMaps[elementId];
         }
+    },
+
+    // Scrolls the matching clinic card into view after a pin click.
+    // No-op when the card is already fully visible or missing.
+    scrollToCard: function (clinicId) {
+        const el = document.getElementById('clinic-card-' + clinicId);
+        if (!el) return;
+        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
     }
 };

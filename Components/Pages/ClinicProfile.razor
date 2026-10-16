@@ -26,49 +26,51 @@ else
         </a>
     </div>
 
-    <!-- Clinic Header Banner -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-left: 5px solid #00a896 !important;">
+    <!-- Clinic Header -->
+    <div class="card rounded-4 p-4 mb-4">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge bg-teal text-white" style="background-color: #00a896;">Verified Center</span>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <span class="badge text-bg-success">Verified center</span>
                     @if (clinic.IsHospitalDepartment)
                     {
-                        <span class="badge bg-primary">Hospital Dental Dept</span>
+                        <span class="badge text-bg-light border">Hospital dental dept</span>
                     }
-                    <span class="badge bg-light text-dark border">Cebu Hub ID #@clinic.Id</span>
+                    <span class="badge text-bg-light border">Cebu Hub ID #@clinic.Id</span>
                 </div>
-                <h1 class="display-6 fw-bold mb-2" style="color: #0a2540;">@clinic.Name</h1>
+                <h1 class="mb-2">@clinic.Name</h1>
                 <div class="d-flex flex-wrap align-items-center gap-3 text-muted">
                     <span>
-                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
                         <strong>@clinic.Area</strong>, @clinic.City, Cebu, Philippines
                     </span>
                     <span>&bull;</span>
                     <span>
-                        <i class="bi bi-translate text-primary me-1"></i>
                         Languages: <strong>@clinic.Languages</strong>
                     </span>
                     <span>&bull;</span>
-                    <span>
-                        <i class="bi bi-envelope text-secondary me-1"></i>
-                        @clinic.Contact
-                    </span>
+                    @if (!string.IsNullOrWhiteSpace(clinic.Contact))
+                    {
+                        <span>
+                            @clinic.Contact
+                        </span>
+                    }
+                    else
+                    {
+                        <span>Contact via hub inquiry form</span>
+                    }
                 </div>
             </div>
             <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                <a href="request?clinicId=@clinic.Id" class="btn btn-lg btn-primary px-4 py-2 shadow-sm" style="background-color: #00a896; border-color: #009383; font-weight: 600;">
-                    Request Itemized Quote &rarr;
+                <a href="request?clinicId=@clinic.Id" class="btn btn-lg btn-primary px-4 py-2">
+                    Request itemized quote
                 </a>
             </div>
         </div>
     </div>
 
     <!-- Trust Checklist & Guarantees -->
-    <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
-        <h4 class="h5 fw-bold mb-3" style="color: #0a2540;">
-            <i class="bi bi-shield-check text-success me-2"></i>Trust & Quality Standards Checklist
-        </h4>
+    <div class="card rounded-3 p-4 mb-4 bg-white">
+        <h2 class="h5 mb-3">Trust and quality checklist</h2>
         <div class="row g-3">
             <div class="col-md-3 col-sm-6">
                 <div class="p-3 rounded-3 border bg-light h-100">
@@ -118,25 +120,25 @@ else
     </div>
 
     <!-- Procedures & Pricing Table -->
-    <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="card rounded-3 p-4 mb-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
             <div>
-                <h4 class="h5 fw-bold mb-1" style="color: #0a2540;">Procedures, PHP Pricing & Visit Schedule</h4>
-                <p class="text-muted small mb-0">Detailed breakdown of chair days, recovery nights, and visit scheduling.</p>
+                <h2 class="h5 mb-1">Procedures, PHP pricing and visit schedule</h2>
+                <p class="text-muted small mb-0">Chair days, recovery nights, and visit scheduling.</p>
             </div>
-            <span class="badge bg-light text-dark border">July 2026 Price Anchors</span>
+            <span class="badge text-bg-light border">July 2026 price anchors</span>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light small text-uppercase">
+            <table class="table table-hover align-middle mb-0 compare-table">
+                <thead class="small">
                     <tr>
-                        <th style="min-width: 140px;">Procedure</th>
-                        <th style="min-width: 120px;">Price (PHP)</th>
-                        <th style="min-width: 130px;">Visits Needed</th>
-                        <th style="min-width: 140px;">Chair vs Recovery</th>
-                        <th style="min-width: 250px;">Package Inclusions</th>
-                        <th class="text-end" style="min-width: 130px;">Action</th>
+                        <th>Procedure</th>
+                        <th class="text-end">Price (PHP)</th>
+                        <th>Visits needed</th>
+                        <th>Chair vs recovery</th>
+                        <th>Package inclusions</th>
+                        <th class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -150,7 +152,7 @@ else
                                     <div class="small text-primary"><i class="bi bi-shield-plus me-1"></i>Extended Stay Guarantee</div>
                                 }
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <div class="h6 fw-bold text-success mb-0">₱@proc.PricePhp.ToString("N0")</div>
                             </td>
                             <td>
@@ -174,8 +176,8 @@ else
                                 }
                             </td>
                             <td>
-                                <div><i class="bi bi-clock me-1 text-secondary"></i>@proc.ChairDays chair day@(proc.ChairDays == 1 ? "" : "s")</div>
-                                <div class="text-muted small"><i class="bi bi-moon me-1 text-secondary"></i>@proc.RecoveryNights recovery night@(proc.RecoveryNights == 1 ? "" : "s")</div>
+                                <div>@proc.ChairDays chair day@(proc.ChairDays == 1 ? "" : "s")</div>
+                                <div class="text-muted small">@proc.RecoveryNights recovery night@(proc.RecoveryNights == 1 ? "" : "s")</div>
                             </td>
                             <td>
                                 <div class="small text-secondary">
@@ -186,8 +188,8 @@ else
                                 </div>
                             </td>
                             <td class="text-end">
-                                <a href="request?clinicId=@clinic.Id&procedureId=@proc.Id" class="btn btn-sm btn-outline-success fw-bold">
-                                    Inquire Now
+                                <a href="request?clinicId=@clinic.Id&procedureId=@proc.Id" class="btn btn-sm btn-outline-dark fw-bold">
+                                    Inquire
                                 </a>
                             </td>
                         </tr>
@@ -200,10 +202,8 @@ else
     <!-- Recovery & Aftercare -->
     <div class="row g-4 mb-4">
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-3 p-4 bg-white h-100">
-                <h4 class="h5 fw-bold mb-3" style="color: #0a2540;">
-                    🦷 Recovery & Aftercare in Cebu
-                </h4>
+            <div class="card rounded-3 p-4 bg-white h-100">
+                <h2 class="h5 mb-2">Recovery and aftercare in Cebu</h2>
                 <p class="text-muted small">
                     What to expect after your appointment, and how follow-ups work at this clinic.
                 </p>
@@ -249,7 +249,7 @@ else
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm rounded-3 p-4 bg-white h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h4 class="h6 fw-bold mb-0" style="color: #0a2540;">Clinic Location</h4>
+                    <h4 class="h6 fw-bold mb-0">Clinic location</h4>
                     <span class="badge bg-light text-dark border">@clinic.Area</span>
                 </div>
                 <LeafletMap Pins="@clinicPins" SelectedPinId="@clinic.Id" Height="280px" />

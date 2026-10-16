@@ -1,5 +1,7 @@
+using appdev_sprint.Data;
 using appdev_sprint.Models;
 using appdev_sprint.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace appdev_sprint.Tests;
 
@@ -9,17 +11,54 @@ public class SeedTests
     public void Seed_LoadsExpectedCebuDataset()
     {
         using var db = new TestDb();
-        Assert.Equal(6, db.Context.Clinics.Count());
-        Assert.Equal(18, db.Context.Procedures.Count());
+        Assert.Equal(46, db.Context.Clinics.Count());
+        Assert.Equal(138, db.Context.Procedures.Count());
         Assert.Equal(10, db.Context.HomePriceAnchors.Count());
         Assert.Empty(db.Context.Inquiries);
+    }
+
+    [Fact]
+    public void Seed_IsIdempotent_SecondRunChangesNothing()
+    {
+        using var db = new TestDb();
+        var c1 = db.Context.Clinics.Count();
+        var p1 = db.Context.Procedures.Count();
+        var a1 = db.Context.HomePriceAnchors.Count();
+
+        SeedData.Initialize(db.Context);
+
+        Assert.Equal(c1, db.Context.Clinics.Count());
+        Assert.Equal(p1, db.Context.Procedures.Count());
+        Assert.Equal(a1, db.Context.HomePriceAnchors.Count());
+    }
+
+    [Fact]
+    public void Seed_BackfillsMissingClinics_PreservesExistingRows()
+    {
+        using var conn = new Microsoft.Data.Sqlite.SqliteConnection("Data Source=:memory:");
+        conn.Open();
+        using var ctx = new AppDbContext(
+            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<AppDbContext>().UseSqlite(conn).Options);
+        ctx.Database.EnsureCreated();
+        // Simulate a v1 database: one original clinic + an admin-added custom clinic.
+        ctx.Clinics.Add(new Clinic { Name = "Mabolo Family Dental", Area = "Mabolo", City = "Cebu City", Latitude = 1, Longitude = 1 });
+        ctx.Clinics.Add(new Clinic { Name = "Admin Custom Clinic", Area = "Test", City = "Test City", Latitude = 10.3, Longitude = 123.9 });
+        ctx.SaveChanges();
+
+        SeedData.Initialize(ctx);
+
+        Assert.Equal(47, ctx.Clinics.Count()); // 46 seeds (Mabolo matched by name) + 1 custom
+        var mabolo = ctx.Clinics.Single(c => c.Name == "Mabolo Family Dental");
+        Assert.Equal(1, mabolo.Latitude); // existing row untouched
+        Assert.NotEmpty(ctx.Procedures.Where(p => p.ClinicId == mabolo.Id)); // missing types backfilled
+        Assert.Single(ctx.Clinics.Where(c => c.Name == "Admin Custom Clinic"));
     }
 }
 
 public class CatalogTests
 {
     [Fact]
-    public async Task Pins_ReturnSixClinics_AllInsideCebuBoundingBox()
+    public async Task Pins_ReturnAllClinics_AllInsideCebuBoundingBox()
     {
         using var db = new TestDb();
         var svc = new ClinicCatalogService(db.Context);
@@ -27,7 +66,7 @@ public class CatalogTests
         var pins = await svc.GetPinsAsync();
         var box = ClinicCatalogService.CebuBoundingBox;
 
-        Assert.Equal(6, pins.Count);
+        Assert.Equal(46, pins.Count);
         Assert.All(pins, p =>
         {
             Assert.InRange(p.Latitude, box.MinLat, box.MaxLat);
@@ -36,14 +75,14 @@ public class CatalogTests
     }
 
     [Fact]
-    public async Task Filter_VeneerUnder20k_ReturnsOnlyValueTierClinics()
+    public async Task Filter_VeneerUnder20k_ReturnsValueTierClinics()
     {
         using var db = new TestDb();
         var svc = new ClinicCatalogService(db.Context);
 
         var pins = await svc.GetPinsAsync(new ClinicFilter(ProcedureType.Veneer, 20000m, null));
 
-        Assert.Equal(2, pins.Count);
+        Assert.Equal(34, pins.Count);
         Assert.Contains(pins, p => p.Area == "Mabolo");
         Assert.Contains(pins, p => p.Area == "Pajac");
     }
@@ -57,7 +96,7 @@ public class CatalogTests
 
         var quotes = await svc.CompareAsync(ProcedureType.Implant, "United States", 1, ids);
 
-        Assert.Equal(6, quotes.Count);
+        Assert.Equal(21, quotes.Count);
         Assert.All(quotes, q =>
         {
             Assert.Equal("United States", q.HomeCountry);
@@ -108,7 +147,7 @@ public class CatalogTests
     }
 
     [Fact]
-    public async Task GetPrices_Implant_ReturnsSixClinics_SortedCheapestFirst()
+    public async Task GetPrices_Implant_ReturnsAllImplantClinics_SortedCheapestFirst()
     {
         using var db = new TestDb();
         var svc = new ClinicCatalogService(db.Context);
@@ -116,7 +155,7 @@ public class CatalogTests
 
         var prices = await svc.GetPricesAsync(ProcedureType.Implant, ids);
 
-        Assert.Equal(6, prices.Count);
+        Assert.Equal(21, prices.Count);
         Assert.Equal(prices.OrderBy(p => p.Procedure.PricePhp).Select(p => p.ClinicId),
             prices.Select(p => p.ClinicId));
         Assert.Equal("Mabolo", prices[0].ClinicArea);

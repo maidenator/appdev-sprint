@@ -1,21 +1,23 @@
 ﻿@page "/clinics"
 @rendermode InteractiveServer
+@using Microsoft.JSInterop
 @using appdev_sprint.Components.Shared
 @using appdev_sprint.Models
 @using appdev_sprint.Services
 @inject ClinicCatalogService CatalogService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Verified Dental Clinics in Metro Cebu — Cebu Dental Hub</PageTitle>
 
 <div class="mb-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
-            <h1 class="h2 fw-bold mb-1" style="color: #0a2540;">Verified Dental Clinics in Metro Cebu</h1>
-            <p class="text-muted mb-0">Browse accredited dental centers with transparent PHP pricing, international sterilization standards, and English-fluent teams.</p>
+            <h1 class="mb-1">Verified dental clinics in Metro Cebu</h1>
+            <p class="text-muted mb-0">Accredited centers with transparent PHP pricing and English-fluent teams.</p>
         </div>
         <div class="mt-2 mt-md-0">
-            <span class="badge bg-light text-dark border p-2">
-                <i class="bi bi-geo-alt-fill text-danger me-1"></i> Showing <strong>@clinics.Count</strong> clinics in Cebu
+            <span class="badge text-bg-light border p-2">
+                Showing <strong>@clinics.Count</strong> clinics in Cebu
             </span>
         </div>
     </div>
@@ -56,12 +58,13 @@
             </select>
         </div>
         <div class="col-md-3 col-sm-6">
-            <label class="form-label small fw-bold text-muted mb-1">Cebu Municipality / Area</label>
-            <select class="form-select" @onchange="OnAreaChanged">
-                <option value="">All Cebu Areas</option>
-                <option value="Cebu City">Cebu City (Banilad / IT Park / Mabolo)</option>
-                <option value="Mandaue City">Mandaue City</option>
-                <option value="Lapu-Lapu City">Lapu-Lapu City / Mactan Island</option>
+            <label class="form-label small fw-bold text-muted mb-1" for="clinics-area">Cebu City / Municipality</label>
+            <select id="clinics-area" class="form-select" @onchange="OnAreaChanged" value="@selectedCityArea">
+                <option value="">All areas (@cities.Count)</option>
+                @foreach (var city in cities)
+                {
+                    <option value="@city">@city</option>
+                }
             </select>
         </div>
     </div>
@@ -73,12 +76,12 @@
     <div class="col-lg-7">
         @if (clinics.Count == 0)
         {
-            <div class="card p-5 text-center border-dashed">
-                <div class="mb-3 fs-1 text-muted">🔍</div>
-                <h4 class="fw-bold">No clinics match your filters</h4>
-                <p class="text-muted">Try resetting your procedure or budget filters to view available Cebu dental centers.</p>
+            <div class="card p-5 text-center">
+                <div class="mb-3 fs-1 text-muted"><i class="bi bi-search" aria-hidden="true"></i></div>
+                <h2 class="h4">No clinics match your filters</h2>
+                <p class="text-muted">Reset procedure or budget filters to view available Cebu dental centers.</p>
                 <div>
-                    <button class="btn btn-outline-primary" @onclick="ResetFilters">Reset Filters</button>
+                    <button class="btn btn-outline-dark" @onclick="ResetFilters">Reset filters</button>
                 </div>
             </div>
         }
@@ -89,25 +92,23 @@
                 {
                     var isSelected = clinic.Id == selectedClinicId;
                     <div id="clinic-card-@clinic.Id" class="clinic-card @(isSelected ? "is-selected" : "")" @onclick="() => SelectClinic(clinic.Id)">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <h4 class="h5 fw-bold mb-0" style="color: #0f172a;">@clinic.Name</h4>
-                                    @if (clinic.IsHospitalDepartment)
-                                    {
-                                        <span class="badge bg-primary" style="font-size: 0.7rem;">Hospital Department</span>
-                                    }
+                            <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <h2 class="h5 mb-0">@clinic.Name</h2>
+                                        @if (clinic.IsHospitalDepartment)
+                                        {
+                                            <span class="badge text-bg-light border" style="font-size: 0.7rem;">Hospital department</span>
+                                        }
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        <strong>@clinic.Area</strong>, @clinic.City
+                                        <span class="mx-2">&bull;</span>
+                                        @clinic.Languages
+                                    </div>
                                 </div>
-                                <div class="text-muted small mt-1">
-                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                                    <strong>@clinic.Area</strong>, @clinic.City
-                                    <span class="mx-2">&bull;</span>
-                                    <i class="bi bi-translate text-primary me-1"></i>
-                                    @clinic.Languages
-                                </div>
+                                <span class="badge text-bg-light border">ID #@clinic.Id</span>
                             </div>
-                            <span class="badge bg-light text-dark border">ID #@clinic.Id</span>
-                        </div>
 
                         <!-- Accreditations & Implant Systems -->
                         <div class="d-flex flex-wrap gap-1 mb-3">
@@ -148,16 +149,16 @@
                         </div>
 
                         <!-- Card Footer CTA -->
-                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <div class="ledger-rule d-flex justify-content-between align-items-center pt-2">
                             <button class="btn btn-sm btn-outline-secondary" @onclick="() => SelectClinic(clinic.Id)" @onclick:stopPropagation="true">
-                                <i class="bi bi-geo"></i> Show on Map
+                                Show on map
                             </button>
                             <div class="d-flex gap-2">
-                                <a href="request?clinicId=@clinic.Id" class="btn btn-sm btn-outline-success" @onclick:stopPropagation="true">
-                                    Request Quote
+                                <a href="@GetRequestHref(clinic)" class="btn btn-sm btn-outline-success" @onclick:stopPropagation="true">
+                                    Request quote
                                 </a>
-                                <a href="clinics/@clinic.Id" class="btn btn-sm btn-primary" style="background-color: #00627d; border-color: #004d61;" @onclick:stopPropagation="true">
-                                    Full Pricing & Info &rarr;
+                                <a href="clinics/@clinic.Id" class="btn btn-sm btn-primary" @onclick:stopPropagation="true">
+                                    Full pricing
                                 </a>
                             </div>
                         </div>
@@ -183,6 +184,7 @@
     private List<ClinicPin> pins = new();
     private List<Clinic> allClinics = new();
     private List<Clinic> clinics = new();
+    private List<string> cities = new();
     private int? selectedClinicId;
 
     private ProcedureType? selectedProcedure;
@@ -192,6 +194,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        cities = (await CatalogService.GetClinicsAsync()).Select(c => c.City).Distinct().OrderBy(c => c).ToList();
         await LoadClinics();
     }
 
@@ -251,15 +254,27 @@
         await LoadClinics();
     }
 
-    private void HandlePinSelected(int clinicId)
+    private async Task HandlePinSelected(int clinicId)
     {
         selectedClinicId = clinicId;
         StateHasChanged();
+        try { await JSRuntime.InvokeVoidAsync("cebuMapInterop.scrollToCard", clinicId); }
+        catch (JSDisconnectedException) { }
     }
 
     private void SelectClinic(int clinicId)
     {
         selectedClinicId = clinicId;
         StateHasChanged();
+    }
+
+    private string GetRequestHref(Clinic clinic)
+    {
+        if (selectedProcedure.HasValue)
+        {
+            var proc = clinic.Procedures.FirstOrDefault(p => p.Type == selectedProcedure.Value);
+            if (proc is not null) return $"request?clinicId={clinic.Id}&procedureId={proc.Id}";
+        }
+        return $"request?clinicId={clinic.Id}";
     }
 }

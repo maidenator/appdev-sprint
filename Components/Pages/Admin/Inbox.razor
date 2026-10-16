@@ -11,14 +11,13 @@
 <PageTitle>Clinic Admin Inbox & Patient Inquiries — Cebu Dental Hub</PageTitle>
 
 <div class="mb-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
-            <span class="badge bg-dark text-warning mb-1 px-3 py-1">Clinic Administration</span>
-            <h1 class="h2 fw-bold mb-0" style="color: #0a2540;">Clinic Portal & Inquiry Inbox</h1>
+            <h1 class="mb-0">Clinic portal and inquiry inbox</h1>
         </div>
         <div class="mt-2 mt-sm-0">
-            <span class="badge bg-success-subtle text-success border border-success p-2">
-                <i class="bi bi-shield-lock-fill me-1"></i> Authorized: ClinicAdmin Role Active
+            <span class="badge text-bg-light border p-2">
+                Authorized: ClinicAdmin role active
             </span>
         </div>
     </div>
@@ -43,27 +42,27 @@
     <!-- Metrics Cards Row -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-primary border-4">
-                <div class="small text-muted fw-bold text-uppercase">Total Inquiries</div>
-                <div class="h3 fw-bold mb-0 text-primary">@inquiries.Count</div>
+            <div class="card rounded-3 p-3 bg-white">
+                <div class="small text-muted fw-bold">Total inquiries</div>
+                <div class="h3 fw-bold mb-0">@inquiries.Count</div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-info border-4">
-                <div class="small text-muted fw-bold text-uppercase">New Inquiries</div>
-                <div class="h3 fw-bold mb-0 text-info">@inquiries.Count(i => i.Status == InquiryStatus.New)</div>
+            <div class="card rounded-3 p-3 bg-white">
+                <div class="small text-muted fw-bold">New inquiries</div>
+                <div class="h3 fw-bold mb-0">@inquiries.Count(i => i.Status == InquiryStatus.New)</div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-warning border-4">
-                <div class="small text-muted fw-bold text-uppercase">Quotes Sent</div>
-                <div class="h3 fw-bold mb-0 text-warning">@inquiries.Count(i => i.Status == InquiryStatus.Quoted)</div>
+            <div class="card rounded-3 p-3 bg-white">
+                <div class="small text-muted fw-bold">Quotes sent</div>
+                <div class="h3 fw-bold mb-0">@inquiries.Count(i => i.Status == InquiryStatus.Quoted)</div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-success border-4">
-                <div class="small text-muted fw-bold text-uppercase">Accepted Bookings</div>
-                <div class="h3 fw-bold mb-0 text-success">@inquiries.Count(i => i.Status == InquiryStatus.Accepted)</div>
+            <div class="card rounded-3 p-3 bg-white">
+                <div class="small text-muted fw-bold">Accepted bookings</div>
+                <div class="h3 fw-bold mb-0">@inquiries.Count(i => i.Status == InquiryStatus.Accepted)</div>
             </div>
         </div>
     </div>
@@ -135,7 +134,7 @@
                             @if (inq.Status == InquiryStatus.New)
                             {
                                 <button class="btn btn-sm btn-warning text-dark fw-bold" @onclick="() => UpdateInquiryStatus(inq.Id, InquiryStatus.Quoted)">
-                                    Send Quote &rarr;
+                                    Send quote
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger" @onclick="() => UpdateInquiryStatus(inq.Id, InquiryStatus.Declined)">
                                     Decline
@@ -199,7 +198,7 @@ else
 {
     <!-- Clinic Catalog Overview Tab -->
     <div class="card border-0 shadow-sm rounded-3 p-4 bg-white mb-5">
-        <h4 class="h5 fw-bold mb-3" style="color: #0a2540;">Registered Metro Cebu Dental Centers</h4>
+        <h4 class="h5 fw-bold mb-3">Registered Metro Cebu dental centers</h4>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light small text-uppercase">

@@ -42,7 +42,7 @@ public class ClinicCatalogService(AppDbContext db)
     public const decimal PhpPerUsd = 62m; // July 2026 reference rate
 
     public static readonly (double MinLat, double MaxLat, double MinLng, double MaxLng) CebuBoundingBox =
-        (10.20, 10.45, 123.85, 124.05);
+        (10.05, 10.55, 123.60, 124.05); // Cebu province extent (Danao–Carcar)
 
     public async Task<List<ClinicPin>> GetPinsAsync(ClinicFilter? filter = null)
     {

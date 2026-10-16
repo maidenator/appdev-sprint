@@ -14,15 +14,15 @@
         @if (isSubmitted && submittedInquiry != null)
         {
             <!-- Success Confirmation Screen -->
-            <div class="card border-0 shadow-lg rounded-4 p-5 text-center bg-white my-4">
+            <div class="card rounded-4 p-5 text-center bg-white my-4">
                 <div class="mb-3">
-                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 72px; height: 72px; background: #dcfce7; color: #16a34a; font-size: 2.2rem;">
-                        ✓
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-success-subtle text-success" style="width: 72px; height: 72px; font-size: 2rem;" aria-hidden="true">
+                        <i class="bi bi-check-lg"></i>
                     </span>
                 </div>
 
-                <span class="badge bg-teal text-white mb-2 px-3 py-1 align-self-center" style="background-color: #00a896;">Inquiry Transmitted</span>
-                <h2 class="fw-bold mb-2" style="color: #0a2540;">Your Inquiry Has Been Received!</h2>
+                <p class="text-muted mb-1">Inquiry transmitted</p>
+                <h1 class="mb-2">Your inquiry has been received</h1>
                 <p class="text-muted mb-4">
                     Reference ID: <strong class="text-dark">CEB-INQ-@submittedInquiry.Id.ToString("D4")</strong>
                 </p>
@@ -68,9 +68,9 @@
                 </div>
 
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="clinics" class="btn btn-outline-secondary">Browse More Clinics</a>
-                    <button class="btn btn-primary" style="background-color: #00627d; border-color: #004d61;" @onclick="ResetForm">
-                        Submit Another Inquiry
+                    <a href="clinics" class="btn btn-outline-secondary">Browse more clinics</a>
+                    <button class="btn btn-primary" @onclick="ResetForm">
+                        Submit another inquiry
                     </button>
                 </div>
             </div>
@@ -79,12 +79,11 @@
         {
             <!-- Inquiry Form Header -->
             <div class="mb-4 text-center">
-                <span class="badge bg-teal text-white mb-2 px-3 py-1" style="background-color: #00a896;">Direct Clinic Transmission</span>
-                <h1 class="display-6 fw-bold mb-2" style="color: #0a2540;">Request a Free Written Treatment Plan</h1>
-                <p class="text-muted">Receive a comprehensive, itemized quote in Philippine Pesos directly from PRC-licensed dental specialists in Metro Cebu. Zero booking fees or commission.</p>
+                <h1 class="mb-2">Request a free written treatment plan</h1>
+                <p class="text-muted">Itemized quote in Philippine Pesos directly from licensed dental specialists in Metro Cebu. No booking fees.</p>
             </div>
 
-            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+            <div class="card rounded-4 p-4 p-md-5 bg-white mb-4">
                 <EditForm Model="@model" OnValidSubmit="@HandleValidSubmit">
                     <DataAnnotationsValidator />
 
@@ -124,8 +123,9 @@
 
                         <!-- Contact Details -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted">Email Address or Phone *</label>
-                            <InputText class="form-control" @bind-Value="model.Contact" placeholder="e.g. john@example.com or +1 415-555-0100" />
+                            <label class="form-label small fw-bold text-muted" for="req-contact">Email address or phone *</label>
+                            <InputText id="req-contact" class="form-control" @bind-Value="model.Contact" placeholder="e.g. john@example.com or +1 415-555-0100" />
+                            <div class="form-text">Clinic replies here — double-check spelling.</div>
                             <ValidationMessage For="@(() => model.Contact)" class="text-danger small mt-1" />
                         </div>
 
@@ -144,8 +144,9 @@
 
                         <!-- Preferred Visit Date -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted">Preferred Visit Date</label>
-                            <InputDate class="form-control" @bind-Value="model.PreferredDate" />
+                            <label class="form-label small fw-bold text-muted" for="req-date">Preferred visit date</label>
+                            <InputDate id="req-date" class="form-control" @bind-Value="model.PreferredDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <ValidationMessage For="@(() => model.PreferredDate)" class="text-danger small mt-1" />
                         </div>
 
                         <!-- Companion Count -->
@@ -169,17 +170,18 @@
                         <!-- Trust Checkbox -->
                         <div class="col-12">
                             <div class="form-check p-3 rounded-2 bg-light border">
-                                <input class="form-check-input" type="checkbox" id="consentCheck" checked required />
+                                <InputCheckbox class="form-check-input" id="consentCheck" @bind-Value="model.Consent" />
                                 <label class="form-check-label small text-muted" for="consentCheck">
                                     I agree to receive a free written treatment plan in Philippine Pesos (PHP) directly from the clinic. My medical data is transmitted privately with zero advertising spam.
                                 </label>
+                                <ValidationMessage For="@(() => model.Consent)" class="text-danger small mt-1" />
                             </div>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="col-12 mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg w-100 shadow py-3 fw-bold" style="background-color: #00a896; border-color: #009383;">
-                                Submit Treatment Request &rarr;
+                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold" disabled="@isSubmitting">
+                                @(isSubmitting ? "Sending…" : "Submit treatment request")
                             </button>
                         </div>
                     </div>
@@ -200,6 +202,7 @@
     private List<Clinic> clinics = new();
     private List<Procedure> availableProcedures = new();
     private bool isSubmitted = false;
+    private bool isSubmitting = false;
     private Inquiry? submittedInquiry;
     private string confirmedClinicName = "";
     private string confirmedProcName = "";
@@ -219,7 +222,8 @@
 
         UpdateAvailableProcedures();
 
-        if (ProcedureId.HasValue && ProcedureId.Value > 0)
+        if (ProcedureId.HasValue && ProcedureId.Value > 0
+            && availableProcedures.Any(p => p.Id == ProcedureId.Value))
         {
             model.ProcedureId = ProcedureId.Value;
         }
@@ -233,8 +237,16 @@
 
     private void OnClinicSelectionChanged()
     {
+        var currentType = availableProcedures.FirstOrDefault(p => p.Id == model.ProcedureId)?.Type;
         UpdateAvailableProcedures();
-        if (availableProcedures.Count > 0)
+        var sameType = currentType.HasValue
+            ? availableProcedures.FirstOrDefault(p => p.Type == currentType.Value)
+            : null;
+        if (sameType is not null)
+        {
+            model.ProcedureId = sameType.Id;
+        }
+        else if (availableProcedures.Count > 0)
         {
             model.ProcedureId = availableProcedures.First().Id;
         }
@@ -252,23 +264,32 @@
 
     private async Task HandleValidSubmit()
     {
-        var selClinic = clinics.FirstOrDefault(c => c.Id == model.ClinicId);
-        confirmedClinicName = selClinic?.Name ?? "Selected Clinic";
-        var selProc = availableProcedures.FirstOrDefault(p => p.Id == model.ProcedureId);
-        confirmedProcName = selProc != null ? $"{selProc.Type} (₱{selProc.PricePhp:N0} PHP)" : "Dental Procedure";
+        if (isSubmitting) return;
+        isSubmitting = true;
+        try
+        {
+            var selClinic = clinics.FirstOrDefault(c => c.Id == model.ClinicId);
+            confirmedClinicName = selClinic?.Name ?? "Selected Clinic";
+            var selProc = availableProcedures.FirstOrDefault(p => p.Id == model.ProcedureId);
+            confirmedProcName = selProc != null ? $"{selProc.Type} (₱{selProc.PricePhp:N0} PHP)" : "Dental Procedure";
 
-        submittedInquiry = await InquiryService.SubmitAsync(
-            model.ClinicId,
-            model.ProcedureId,
-            model.PatientName,
-            model.Contact,
-            model.HomeCountry,
-            model.PreferredDate,
-            model.CompanionCount,
-            model.Notes ?? ""
-        );
+            submittedInquiry = await InquiryService.SubmitAsync(
+                model.ClinicId,
+                model.ProcedureId,
+                model.PatientName,
+                model.Contact,
+                model.HomeCountry,
+                model.PreferredDate,
+                model.CompanionCount,
+                model.Notes ?? ""
+            );
 
-        isSubmitted = true;
+            isSubmitted = true;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
 
     private void ResetForm()
@@ -277,7 +298,8 @@
         {
             ClinicId = clinics.FirstOrDefault()?.Id ?? 0,
             HomeCountry = "Cebu City",
-            PreferredDate = DateTime.Today.AddDays(30)
+            PreferredDate = DateTime.Today.AddDays(30),
+            Consent = true
         };
         UpdateAvailableProcedures();
         if (availableProcedures.Count > 0)
@@ -285,10 +307,11 @@
             model.ProcedureId = availableProcedures.First().Id;
         }
         isSubmitted = false;
+        isSubmitting = false;
         submittedInquiry = null;
     }
 
-    public class InquiryFormModel
+    public class InquiryFormModel : IValidatableObject
     {
         [Required(ErrorMessage = "Please select a clinic")]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a clinic")]
@@ -303,6 +326,7 @@
         public string PatientName { get; set; } = "";
 
         [Required(ErrorMessage = "Please enter your email or phone number")]
+        [MinLength(5, ErrorMessage = "Contact must be at least 5 characters")]
         public string Contact { get; set; } = "";
 
         [Required(ErrorMessage = "Please tell us where you are based")]
@@ -313,5 +337,14 @@
         public int CompanionCount { get; set; } = 0;
 
         public string? Notes { get; set; }
+
+        [Range(typeof(bool), "true", "true", ErrorMessage = "Please agree to receive your treatment plan")]
+        public bool Consent { get; set; } = true;
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (PreferredDate.HasValue && PreferredDate.Value.Date < DateTime.Today)
+                yield return new ValidationResult("Preferred date cannot be in the past", new[] { nameof(PreferredDate) });
+        }
     }
 }

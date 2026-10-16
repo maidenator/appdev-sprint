@@ -1,0 +1,102 @@
+.home-hero {
+    background: var(--primary-deep);
+    color: #fff;
+    border-radius: var(--r-card);
+    padding: 40px 32px;
+    box-shadow: var(--shadow-2);
+}
+
+.home-hero h1, .home-hero .home-title { color: #fff; }
+
+.home-kicker {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #b8c7d6;
+    margin-bottom: 12px;
+}
+
+.home-title {
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+    margin-bottom: 12px;
+    max-width: 20ch;
+}
+
+.home-lede {
+    color: #cbd5e1;
+    max-width: 62ch;
+    margin-bottom: 20px;
+}
+
+.home-facts {
+    display: flex;
+    gap: 24px;
+    margin: 24px 0 0;
+    padding: 16px 0 0;
+    border-top: 1px solid rgb(255 255 255 / 0.16);
+}
+
+.home-facts dt { font-size: 0.75rem; color: #9fb0c3; font-weight: 600; }
+.home-facts dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.ledger-card {
+    background: var(--surface);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    padding: 20px;
+    box-shadow: var(--shadow-1);
+}
+
+.ledger-title { font-size: 1rem; margin-bottom: 8px; color: var(--primary-deep); }
+.ledger-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+.ledger-row strong { font-variant-numeric: tabular-nums; }
+.ledger-note { font-size: 0.78rem; color: var(--muted); margin: 8px 0 0; }
+
+.standards-strip {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    background: var(--surface);
+}
+
+.standards-strip li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 14px 16px;
+}
+
+.standards-strip li + li { border-left: 1px solid var(--border); }
+.standards-strip i { color: var(--primary); font-size: 1.1rem; }
+.standards-strip strong { display: block; font-size: 0.9rem; color: var(--primary-deep); }
+.standards-strip span { font-size: 0.8rem; color: var(--muted); }
+
+.home-clinic-list { max-height: 510px; overflow-y: auto; padding-right: 4px; }
+.clinic-name { font-size: 1.05rem; font-weight: 700; color: var(--primary-deep); margin: 0; }
+.price { color: var(--success); font-variant-numeric: tabular-nums; }
+
+.compare-callout {
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    padding: 28px;
+}
+
+.ledger-card-compact { box-shadow: none; }
+
+@media (max-width: 992px) {
+    .standards-strip { grid-template-columns: 1fr 1fr; }
+    .standards-strip li:nth-child(3) { border-left: none; }
+    .standards-strip li:nth-child(n+3) { border-top: 1px solid var(--border); }
+}

@@ -1,42 +1,29 @@
 @inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4 d-flex justify-content-between align-items-center bg-white border-bottom shadow-sm">
-            <div class="d-flex align-items-center gap-3">
-                <span class="badge bg-light text-dark border d-none d-md-inline-block">
-                    🇵🇭 <strong>Cebu, Philippines</strong> (GMT+8)
-                </span>
-                <span class="text-muted small d-none d-lg-inline-block">
-                    Prices in <strong>Philippine Pesos (₱)</strong>
-                </span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <a href="compare" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-block">
-                    Compare Prices
-                </a>
-                <a href="request" class="btn btn-primary btn-sm px-3 shadow-sm" style="background-color: #00a896; border-color: #009383; font-weight: 600;">
-                    Get Free Quote &rarr;
-                </a>
+<div class="hub-shell">
+    <header class="hub-header">
+        <div class="hub-header-inner">
+            <a class="hub-brand" href="">
+                <span class="hub-mark" aria-hidden="true">CEBU</span>
+                <span class="hub-word">Dental Hub <span class="hub-sub">Metro Cebu</span></span>
+            </a>
+            <NavMenu />
+            <div class="hub-header-actions">
+                <span class="hub-locale d-none d-lg-inline">Prices in <strong>₱ PHP</strong> · GMT+8</span>
+                <a href="request" class="btn btn-primary btn-sm hub-cta">Get free quote</a>
             </div>
         </div>
+    </header>
 
-        <article class="content px-3 px-md-4 py-4">
+    <main>
+        <article class="content hub-content">
             @Body
         </article>
 
-        <footer class="mt-5 py-4 border-top bg-light text-center text-muted small px-3">
-            <div class="container">
-                <p class="mb-1">
-                    <strong>Cebu Dental Hub</strong> &bull; Banilad &bull; IT Park &bull; Mandaue &bull; Mabolo &bull; Fuente Osmeña &bull; Mactan
-                </p>
-                <p class="mb-0 text-secondary" style="font-size: 0.8rem;">
-                    * All seed/real clinic pricing, package estimates, and travel expenses are illustrative demo anchors. Final quotes provided directly by clinics in Philippine Pesos (PHP).
-                </p>
+        <footer class="hub-footer">
+            <div class="hub-footer-inner">
+                <p class="hub-footer-areas"><strong>Cebu Dental Hub</strong> — Metro Cebu · Talisay · Minglanilla · Naga · Carcar · Consolacion · Liloan · Compostela · Danao</p>
+                <p class="hub-footer-note">Clinic names and areas are real directory listings. Prices, availability, and all other details are illustrative demo anchors — confirm a written quote with the clinic in Philippine Pesos (PHP).</p>
             </div>
         </footer>
     </main>

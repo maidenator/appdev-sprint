@@ -1,45 +1,7 @@
-<div class="top-row ps-3 navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center fw-bold" href="">
-            <span class="badge bg-teal me-2" style="background-color: #00a896; font-size: 0.9rem;">CEBU</span>
-            <span>Dental Hub</span>
-        </a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="clinics">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Clinics & Map
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="compare">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Cost Comparison
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="request">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Request a Quote
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3 mt-3 pt-3 border-top border-secondary">
-            <NavLink class="nav-link text-warning" href="admin">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Clinic Admin
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+<nav class="hub-nav" aria-label="Primary">
+    <NavLink class="hub-link" href="" Match="NavLinkMatch.All">Home</NavLink>
+    <NavLink class="hub-link" href="clinics">Clinics &amp; Map</NavLink>
+    <NavLink class="hub-link" href="compare">Cost Comparison</NavLink>
+    <NavLink class="hub-link" href="request">Request a Quote</NavLink>
+    <NavLink class="hub-link hub-link-admin" href="admin">Clinic Admin</NavLink>
+</nav>

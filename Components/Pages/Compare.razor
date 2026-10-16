@@ -8,17 +8,16 @@
 <PageTitle>Compare Dental Clinic Prices in Cebu</PageTitle>
 
 <div class="mb-4">
-    <span class="badge bg-teal text-white mb-2 px-3 py-1" style="background-color: #00a896;">Price Transparency</span>
-    <h1 class="display-6 fw-bold mb-1" style="color: #0a2540;">Side-by-Side Clinic Price Comparison</h1>
-    <p class="text-muted">Compare transparent treatment prices across Metro Cebu clinics, in Philippine Pesos. No travel math — you're already here.</p>
+    <h1 class="mb-1">Side-by-side clinic price comparison</h1>
+    <p class="text-muted">Transparent treatment prices across Metro Cebu clinics, in Philippine Pesos.</p>
 </div>
 
 <!-- Calculator Controls Bar -->
-<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+<div class="card rounded-4 p-4 mb-4 bg-white">
     <div class="row g-3 align-items-end">
         <div class="col-md-4 col-sm-6">
-            <label class="form-label small fw-bold text-muted">1. Select Procedure</label>
-            <select class="form-select form-select-lg" @onchange="OnProcedureChanged" value="@selectedProcedure">
+            <label class="form-label small fw-bold text-muted" for="compare-proc">Select procedure</label>
+            <select id="compare-proc" class="form-select form-select-lg" @onchange="OnProcedureChanged" value="@selectedProcedure">
                 <option value="Implant">Dental Implant (Single + Crown)</option>
                 <option value="AllOn4">All-on-4 Full Arch</option>
                 <option value="Veneer">Porcelain Veneer (per tooth)</option>
@@ -27,8 +26,8 @@
         </div>
 
         <div class="col-md-4 col-sm-6">
-            <button class="btn btn-primary btn-lg w-100 shadow-sm fw-bold" style="background-color: #00a896; border-color: #009383;" @onclick="Recalculate">
-                Update Comparison
+            <button class="btn btn-primary btn-lg w-100 fw-bold" @onclick="Recalculate">
+                Update comparison
             </button>
         </div>
     </div>
@@ -74,16 +73,16 @@ else
         {
             var isBest = quote.Procedure.PricePhp == bestPrice;
             <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow rounded-4 overflow-hidden h-100 bg-white">
+                <div class="card rounded-4 overflow-hidden h-100 bg-white">
                     <!-- Card Top Price Banner -->
-                    <div class="p-3 text-white text-center" style="background: linear-gradient(135deg, #00a896 0%, #00627d 100%);">
-                        <span class="text-uppercase small fw-bold" style="letter-spacing: 0.05em; opacity: 0.9;">Treatment Price</span>
-                        <div class="display-6 fw-bold">
+                    <div class="p-3 text-center ledger-price-head">
+                        <div class="small fw-bold">Treatment price</div>
+                        <div class="ledger-price">
                             ₱@quote.Procedure.PricePhp.ToString("N0")
                         </div>
                         @if (isBest)
                         {
-                            <span class="badge bg-warning text-dark fw-bold px-3 py-1">
+                            <span class="badge text-bg-warning border fw-bold px-3 py-1">
                                 Best price in Cebu
                             </span>
                         }
@@ -101,7 +100,7 @@ else
 
                             <hr class="my-3 text-muted" />
 
-                            <div class="small fw-bold text-muted mb-2 text-uppercase" style="letter-spacing: 0.04em;">@quote.Procedure.Type — What's Included:</div>
+                            <div class="small fw-bold text-muted mb-2">@quote.Procedure.Type — what is included:</div>
 
                             <div class="d-flex justify-content-between py-1 border-bottom small">
                                 <span>Visits needed</span>
@@ -127,8 +126,8 @@ else
 
                         <!-- Card CTA -->
                         <div class="pt-2">
-                            <a href="request?clinicId=@quote.ClinicId" class="btn btn-primary w-100 py-2 fw-bold shadow-sm" style="background-color: #00627d; border-color: #004d61;">
-                                Request a Quote &rarr;
+                            <a href="request?clinicId=@quote.ClinicId&procedureId=@quote.Procedure.Id" class="btn btn-primary w-100 py-2 fw-bold">
+                                Request a quote
                             </a>
                         </div>
                     </div>
@@ -151,12 +150,13 @@ else
     private ProcedureType selectedProcedure = ProcedureType.Implant;
 
     private List<Clinic> allAvailableClinics = new();
-    private HashSet<int> selectedClinicIds = new() { 1, 2, 3 }; // Defaults to Banilad, IT Park, Mandaue
+    private HashSet<int> selectedClinicIds = new();
     private List<ClinicPrice> clinicPrices = new();
 
     protected override async Task OnInitializedAsync()
     {
         allAvailableClinics = await CatalogService.GetClinicsAsync();
+        selectedClinicIds = allAvailableClinics.Take(3).Select(c => c.Id).ToHashSet();
         await Recalculate();
     }
 
