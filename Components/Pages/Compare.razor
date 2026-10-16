@@ -1,6 +1,8 @@
-@page "/compare"
+﻿@page "/compare"
 @using appdev_sprint.Components.Shared
-@using appdev_sprint.Components.Shared.Stubs
+@using appdev_sprint.Models
+@using appdev_sprint.Services
+@inject ClinicCatalogService CatalogService
 
 <PageTitle>Cebu Dental Tourism Package Savings Calculator</PageTitle>
 
@@ -195,13 +197,13 @@ else
     private string selectedCountry = "United States";
     private int companionCount = 0;
 
-    private List<ClinicDetail> allAvailableClinics = new();
+    private List<Clinic> allAvailableClinics = new();
     private HashSet<int> selectedClinicIds = new() { 1, 2, 3 }; // Defaults to Banilad, IT Park, Mandaue
     private List<PackageQuote> packageQuotes = new();
 
     protected override async Task OnInitializedAsync()
     {
-        allAvailableClinics = await StubCatalogService.Instance.GetClinicsAsync();
+        allAvailableClinics = await CatalogService.GetClinicsAsync();
         await Recalculate();
     }
 
@@ -247,7 +249,7 @@ else
 
     private async Task Recalculate()
     {
-        packageQuotes = await StubCatalogService.Instance.CompareAsync(
+        packageQuotes = await CatalogService.CompareAsync(
             selectedProcedure,
             selectedCountry,
             companionCount,

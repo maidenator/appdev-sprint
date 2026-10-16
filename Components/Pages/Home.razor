@@ -1,6 +1,8 @@
-@page "/"
+﻿@page "/"
 @using appdev_sprint.Components.Shared
-@using appdev_sprint.Components.Shared.Stubs
+@using appdev_sprint.Models
+@using appdev_sprint.Services
+@inject ClinicCatalogService CatalogService
 
 <PageTitle>Cebu Dental Tourism Hub — World-Class Care, Tropical Recovery</PageTitle>
 
@@ -233,7 +235,7 @@
 
 @code {
     private List<ClinicPin> pins = new();
-    private List<ClinicDetail> clinics = new();
+    private List<Clinic> clinics = new();
     private int? selectedClinicId;
     private ProcedureType? selectedProcedure;
     private decimal? selectedMaxPrice;
@@ -247,8 +249,8 @@
     private async Task LoadClinics()
     {
         var filter = new ClinicFilter(selectedProcedure, selectedMaxPrice, selectedAccreditation);
-        pins = await StubCatalogService.Instance.GetPinsAsync(filter);
-        clinics = await StubCatalogService.Instance.GetClinicsAsync(filter);
+        pins = await CatalogService.GetPinsAsync(filter);
+        clinics = await CatalogService.GetClinicsAsync(filter);
         if (selectedClinicId.HasValue && !pins.Any(p => p.Id == selectedClinicId.Value))
         {
             selectedClinicId = null;

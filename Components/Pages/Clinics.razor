@@ -1,6 +1,8 @@
-@page "/clinics"
+﻿@page "/clinics"
 @using appdev_sprint.Components.Shared
-@using appdev_sprint.Components.Shared.Stubs
+@using appdev_sprint.Models
+@using appdev_sprint.Services
+@inject ClinicCatalogService CatalogService
 
 <PageTitle>Verified Dental Clinics in Metro Cebu — Cebu Dental Tourism Hub</PageTitle>
 
@@ -178,8 +180,8 @@
 
 @code {
     private List<ClinicPin> pins = new();
-    private List<ClinicDetail> allClinics = new();
-    private List<ClinicDetail> clinics = new();
+    private List<Clinic> allClinics = new();
+    private List<Clinic> clinics = new();
     private int? selectedClinicId;
 
     private ProcedureType? selectedProcedure;
@@ -195,7 +197,7 @@
     private async Task LoadClinics()
     {
         var filter = new ClinicFilter(selectedProcedure, selectedMaxPrice, selectedAccreditation);
-        allClinics = await StubCatalogService.Instance.GetClinicsAsync(filter);
+        allClinics = await CatalogService.GetClinicsAsync(filter);
         
         // Secondary area filter
         if (!string.IsNullOrWhiteSpace(selectedCityArea))
