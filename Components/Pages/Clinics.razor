@@ -1,0 +1,262 @@
+@page "/clinics"
+@using appdev_sprint.Components.Shared
+@using appdev_sprint.Components.Shared.Stubs
+
+<PageTitle>Verified Dental Clinics in Metro Cebu — Cebu Dental Tourism Hub</PageTitle>
+
+<div class="mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <h1 class="h2 fw-bold mb-1" style="color: #0a2540;">Verified Dental Clinics in Metro Cebu</h1>
+            <p class="text-muted mb-0">Browse accredited dental centers with transparent PHP pricing, international sterilization standards, and English-fluent teams.</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <span class="badge bg-light text-dark border p-2">
+                <i class="bi bi-geo-alt-fill text-danger me-1"></i> Showing <strong>@clinics.Count</strong> clinics in Cebu
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Card -->
+<div class="filter-bar-card mb-4">
+    <div class="row g-3">
+        <div class="col-md-3 col-sm-6">
+            <label class="form-label small fw-bold text-muted mb-1">Procedure</label>
+            <select class="form-select" @onchange="OnProcedureChanged">
+                <option value="">All Procedures</option>
+                <option value="Implant">Dental Implant</option>
+                <option value="AllOn4">All-on-4 Full Arch</option>
+                <option value="Veneer">Porcelain Veneer</option>
+                <option value="Crown">Crown</option>
+                <option value="Cleaning">Cleaning & Scaling</option>
+                <option value="Whitening">Teeth Whitening</option>
+            </select>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <label class="form-label small fw-bold text-muted mb-1">Max Budget (PHP)</label>
+            <select class="form-select" @onchange="OnBudgetSelectChanged">
+                <option value="">Any Budget</option>
+                <option value="30000">Up to ₱30,000</option>
+                <option value="100000">Up to ₱100,000</option>
+                <option value="200000">Up to ₱200,000</option>
+                <option value="700000">Up to ₱700,000</option>
+            </select>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <label class="form-label small fw-bold text-muted mb-1">Accreditation</label>
+            <select class="form-select" @onchange="OnAccreditationChanged">
+                <option value="">All Accreditations</option>
+                <option value="ISO">ISO Certified</option>
+                <option value="PhilHealth">PhilHealth</option>
+                <option value="JCI">JCI-affiliated</option>
+            </select>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <label class="form-label small fw-bold text-muted mb-1">Cebu Municipality / Area</label>
+            <select class="form-select" @onchange="OnAreaChanged">
+                <option value="">All Cebu Areas</option>
+                <option value="Cebu City">Cebu City (Banilad / IT Park / Mabolo)</option>
+                <option value="Mandaue City">Mandaue City</option>
+                <option value="Lapu-Lapu City">Lapu-Lapu City / Mactan Island</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Main Split Screen: Listings & Map -->
+<div class="row g-4">
+    <!-- Clinic Listings Column -->
+    <div class="col-lg-7">
+        @if (clinics.Count == 0)
+        {
+            <div class="card p-5 text-center border-dashed">
+                <div class="mb-3 fs-1 text-muted">🔍</div>
+                <h4 class="fw-bold">No clinics match your filters</h4>
+                <p class="text-muted">Try resetting your procedure or budget filters to view available Cebu dental centers.</p>
+                <div>
+                    <button class="btn btn-outline-primary" @onclick="ResetFilters">Reset Filters</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var clinic in clinics)
+                {
+                    var isSelected = clinic.Id == selectedClinicId;
+                    <div id="clinic-card-@clinic.Id" class="clinic-card @(isSelected ? "is-selected" : "")" @onclick="() => SelectClinic(clinic.Id)">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <h4 class="h5 fw-bold mb-0" style="color: #0f172a;">@clinic.Name</h4>
+                                    @if (clinic.IsHospitalDepartment)
+                                    {
+                                        <span class="badge bg-primary" style="font-size: 0.7rem;">Hospital Department</span>
+                                    }
+                                </div>
+                                <div class="text-muted small mt-1">
+                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                    <strong>@clinic.Area</strong>, @clinic.City
+                                    <span class="mx-2">&bull;</span>
+                                    <i class="bi bi-translate text-primary me-1"></i>
+                                    @clinic.Languages
+                                </div>
+                            </div>
+                            <span class="badge bg-light text-dark border">ID #@clinic.Id</span>
+                        </div>
+
+                        <!-- Accreditations & Implant Systems -->
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            @foreach (var acc in clinic.Accreditations.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <span class="badge @(acc.Contains("ISO") ? "badge-iso" : "badge-philhealth")">@acc</span>
+                            }
+                            <span class="badge badge-system">Implant: @clinic.ImplantSystems</span>
+                        </div>
+
+                        <!-- Procedures Pricing Table Snippet -->
+                        <div class="bg-light p-2 rounded-2 mb-3">
+                            <div class="small fw-bold text-muted mb-1 px-1">Available Procedures & Estimated Recovery:</div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-borderless mb-0 small">
+                                    <tbody>
+                                        @foreach (var p in clinic.Procedures.Take(3))
+                                        {
+                                            <tr>
+                                                <td class="fw-semibold">@p.Type</td>
+                                                <td>
+                                                    @if (p.TwoTrips)
+                                                    {
+                                                        <span class="badge badge-trip-two" title="Requires 2 trips for implant osseointegration">2 Trips Required</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-trip-single">Single Trip</span>
+                                                    }
+                                                </td>
+                                                <td class="text-muted">@p.RecoveryNights recovery night@(p.RecoveryNights == 1 ? "" : "s")</td>
+                                                <td class="text-end fw-bold text-success">₱@p.PricePhp.ToString("N0") PHP</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer CTA -->
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => SelectClinic(clinic.Id)" @onclick:stopPropagation="true">
+                                <i class="bi bi-geo"></i> Show on Map
+                            </button>
+                            <div class="d-flex gap-2">
+                                <a href="request?clinicId=@clinic.Id" class="btn btn-sm btn-outline-success" @onclick:stopPropagation="true">
+                                    Request Quote
+                                </a>
+                                <a href="clinics/@clinic.Id" class="btn btn-sm btn-primary" style="background-color: #00627d; border-color: #004d61;" @onclick:stopPropagation="true">
+                                    Full Pricing & Info &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Sticky Leaflet Map Column -->
+    <div class="col-lg-5">
+        <div class="sticky-map-col">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold small text-muted text-uppercase">Metro Cebu Map View</span>
+                <span class="small text-muted">Click pin to view details</span>
+            </div>
+            <LeafletMap Pins="@pins" SelectedPinId="@selectedClinicId" OnPinSelected="@HandlePinSelected" Height="580px" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ClinicPin> pins = new();
+    private List<ClinicDetail> allClinics = new();
+    private List<ClinicDetail> clinics = new();
+    private int? selectedClinicId;
+
+    private ProcedureType? selectedProcedure;
+    private decimal? selectedMaxPrice;
+    private string? selectedAccreditation;
+    private string? selectedCityArea;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadClinics();
+    }
+
+    private async Task LoadClinics()
+    {
+        var filter = new ClinicFilter(selectedProcedure, selectedMaxPrice, selectedAccreditation);
+        allClinics = await StubCatalogService.Instance.GetClinicsAsync(filter);
+        
+        // Secondary area filter
+        if (!string.IsNullOrWhiteSpace(selectedCityArea))
+        {
+            clinics = allClinics.Where(c => c.City.Equals(selectedCityArea, StringComparison.OrdinalIgnoreCase) ||
+                                            c.Area.Contains(selectedCityArea, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        else
+        {
+            clinics = allClinics;
+        }
+
+        pins = clinics.Select(c => new ClinicPin(c.Id, c.Name, c.Area, c.City, c.Latitude, c.Longitude)).ToList();
+    }
+
+    private async Task OnProcedureChanged(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        selectedProcedure = string.IsNullOrWhiteSpace(val) ? null : Enum.Parse<ProcedureType>(val);
+        await LoadClinics();
+    }
+
+    private async Task OnBudgetSelectChanged(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        selectedMaxPrice = string.IsNullOrWhiteSpace(val) ? null : decimal.Parse(val);
+        await LoadClinics();
+    }
+
+    private async Task OnAccreditationChanged(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        selectedAccreditation = string.IsNullOrWhiteSpace(val) ? null : val;
+        await LoadClinics();
+    }
+
+    private async Task OnAreaChanged(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        selectedCityArea = string.IsNullOrWhiteSpace(val) ? null : val;
+        await LoadClinics();
+    }
+
+    private async Task ResetFilters()
+    {
+        selectedProcedure = null;
+        selectedMaxPrice = null;
+        selectedAccreditation = null;
+        selectedCityArea = null;
+        await LoadClinics();
+    }
+
+    private void HandlePinSelected(int clinicId)
+    {
+        selectedClinicId = clinicId;
+        StateHasChanged();
+    }
+
+    private void SelectClinic(int clinicId)
+    {
+        selectedClinicId = clinicId;
+        StateHasChanged();
+    }
+}

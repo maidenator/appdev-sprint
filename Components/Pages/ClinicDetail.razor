@@ -1,0 +1,280 @@
+@page "/clinics/{Id:int}"
+@using appdev_sprint.Components.Shared
+@using appdev_sprint.Components.Shared.Stubs
+
+<PageTitle>@(clinic != null ? $"{clinic.Name} — Metro Cebu Dental" : "Clinic Details — Cebu Dental Tourism Hub")</PageTitle>
+
+@if (clinic == null)
+{
+    <div class="card p-5 text-center my-5">
+        <h3 class="fw-bold">Clinic Not Found</h3>
+        <p class="text-muted">The requested clinic profile could not be located in the Metro Cebu hub.</p>
+        <div>
+            <a href="clinics" class="btn btn-primary">Return to Clinics Directory</a>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Breadcrumb & Back Link -->
+    <div class="mb-3">
+        <a href="clinics" class="text-decoration-none text-muted small fw-semibold">
+            &larr; Back to all Metro Cebu clinics
+        </a>
+    </div>
+
+    <!-- Clinic Header Banner -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-left: 5px solid #00a896 !important;">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-teal text-white" style="background-color: #00a896;">Verified Center</span>
+                    @if (clinic.IsHospitalDepartment)
+                    {
+                        <span class="badge bg-primary">Hospital Dental Dept</span>
+                    }
+                    <span class="badge bg-light text-dark border">Cebu Hub ID #@clinic.Id</span>
+                </div>
+                <h1 class="display-6 fw-bold mb-2" style="color: #0a2540;">@clinic.Name</h1>
+                <div class="d-flex flex-wrap align-items-center gap-3 text-muted">
+                    <span>
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                        <strong>@clinic.Area</strong>, @clinic.City, Cebu, Philippines
+                    </span>
+                    <span>&bull;</span>
+                    <span>
+                        <i class="bi bi-translate text-primary me-1"></i>
+                        Languages: <strong>@clinic.Languages</strong>
+                    </span>
+                    <span>&bull;</span>
+                    <span>
+                        <i class="bi bi-envelope text-secondary me-1"></i>
+                        @clinic.Contact
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="request?clinicId=@clinic.Id" class="btn btn-lg btn-primary px-4 py-2 shadow-sm" style="background-color: #00a896; border-color: #009383; font-weight: 600;">
+                    Request Itemized Quote &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trust Checklist & Guarantees -->
+    <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
+        <h4 class="h5 fw-bold mb-3" style="color: #0a2540;">
+            <i class="bi bi-shield-check text-success me-2"></i>Trust & Quality Standards Checklist
+        </h4>
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <div class="p-3 rounded-3 border bg-light h-100">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="text-success fw-bold">✓</span>
+                        <strong style="font-size: 0.9rem;">PRC Licensed</strong>
+                    </div>
+                    <div class="small text-muted">
+                        All attending dental surgeons hold verified Professional Regulation Commission licenses.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="p-3 rounded-3 border bg-light h-100">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="text-success fw-bold">✓</span>
+                        <strong style="font-size: 0.9rem;">Implant Systems</strong>
+                    </div>
+                    <div class="small text-muted">
+                        Official fixtures: <strong>@clinic.ImplantSystems</strong> with serial lot verification cards.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="p-3 rounded-3 border bg-light h-100">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="text-success fw-bold">✓</span>
+                        <strong style="font-size: 0.9rem;">Sterilization Protocol</strong>
+                    </div>
+                    <div class="small text-muted">
+                        Hospital-grade Class B Autoclave cycles, single-use barriers, and biological spore monitoring.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="p-3 rounded-3 border bg-light h-100">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="text-success fw-bold">✓</span>
+                        <strong style="font-size: 0.9rem;">Written Quote Guarantee</strong>
+                    </div>
+                    <div class="small text-muted">
+                        Binding itemized treatment plan in PHP with zero hidden chair or anaesthesia fees.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Procedures & Pricing Table -->
+    <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="h5 fw-bold mb-1" style="color: #0a2540;">Procedures, PHP Pricing & Recovery Schedule</h4>
+                <p class="text-muted small mb-0">Detailed breakdown of chair days, recovery nights, and trip scheduling.</p>
+            </div>
+            <span class="badge bg-light text-dark border">July 2026 Price Anchors</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase">
+                    <tr>
+                        <th style="min-width: 140px;">Procedure</th>
+                        <th style="min-width: 120px;">Price (PHP)</th>
+                        <th style="min-width: 130px;">Trip Protocol</th>
+                        <th style="min-width: 140px;">Chair vs Recovery</th>
+                        <th style="min-width: 250px;">Package Inclusions</th>
+                        <th class="text-end" style="min-width: 130px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var proc in clinic.Procedures)
+                    {
+                        <tr>
+                            <td>
+                                <strong class="text-dark">@proc.Type</strong>
+                                @if (proc.ComplicationExtension)
+                                {
+                                    <div class="small text-primary"><i class="bi bi-shield-plus me-1"></i>Extended Stay Guarantee</div>
+                                }
+                            </td>
+                            <td>
+                                <div class="h6 fw-bold text-success mb-0">₱@proc.PricePhp.ToString("N0")</div>
+                                <div class="text-muted small">≈ $@((proc.PricePhp / 62m).ToString("N0")) USD</div>
+                            </td>
+                            <td>
+                                @if (proc.TwoTrips)
+                                {
+                                    <span class="badge badge-trip-two d-inline-block p-2" style="font-size: 0.75rem;">
+                                        ✈️ 2 Trips Required
+                                    </span>
+                                    <div class="small text-muted mt-1" style="font-size: 0.75rem;">
+                                        3–6 mo. osseointegration gap
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-trip-single d-inline-block p-2" style="font-size: 0.75rem;">
+                                        ✈️ Single Trip (3–5 Days)
+                                    </span>
+                                    <div class="small text-muted mt-1" style="font-size: 0.75rem;">
+                                        Completed in 1 holiday visit
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div><i class="bi bi-clock me-1 text-secondary"></i>@proc.ChairDays chair day@(proc.ChairDays == 1 ? "" : "s")</div>
+                                <div class="text-muted small"><i class="bi bi-moon me-1 text-secondary"></i>@proc.RecoveryNights recovery night@(proc.RecoveryNights == 1 ? "" : "s")</div>
+                            </td>
+                            <td>
+                                <div class="small text-secondary">
+                                    @foreach (var inc in proc.Inclusions.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        <span class="badge bg-light text-dark border me-1 mb-1">✓ @inc</span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <a href="request?clinicId=@clinic.Id&procedureId=@proc.Id" class="btn btn-sm btn-outline-success fw-bold">
+                                    Inquire Now
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recovery Angle & Companion Leisure -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3 p-4 bg-white h-100">
+                <h4 class="h5 fw-bold mb-3" style="color: #0a2540;">
+                    🏖️ Tropical Recovery & Companion Experience
+                </h4>
+                <p class="text-muted small">
+                    Dental procedures in Cebu allow comfortable recovery in luxury beach resorts or modern urban suites, with companion activities available throughout the holiday.
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <h6 class="fw-bold mb-1 text-dark">Mactan Island Beach Resorts</h6>
+                            <p class="text-muted small mb-0">
+                                Located ~20–30 minutes from Metro Cebu clinics. Ideal for gentle recuperation by the pool with 24/7 room service.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <h6 class="fw-bold mb-1 text-dark">Companion Leisure</h6>
+                            <p class="text-muted small mb-0">
+                                Island-hopping tours in Hilutungan & Nalusuan marine sanctuaries, Ayala Center Cebu shopping, and heritage walks.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <h6 class="fw-bold mb-1 text-dark">Airport Transfers</h6>
+                            <p class="text-muted small mb-0">
+                                Mactan-Cebu International Airport (MCIA) is connected via the CCLEX expressway, ensuring swift private transfers.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <h6 class="fw-bold mb-1 text-dark">Recovery Diet Assistance</h6>
+                            <p class="text-muted small mb-0">
+                                Soft-food catering and fresh local fruit juices (mango, coconut) available throughout hotel recovery.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini Clinic Map -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="h6 fw-bold mb-0" style="color: #0a2540;">Clinic Location</h4>
+                    <span class="badge bg-light text-dark border">@clinic.Area</span>
+                </div>
+                <LeafletMap Pins="@clinicPins" SelectedPinId="@clinic.Id" Height="280px" />
+                <div class="mt-2 text-muted small text-center">
+                    <i class="bi bi-geo-alt text-danger"></i> @clinic.Area, @clinic.City
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ClinicDetail? clinic;
+    private List<ClinicPin> clinicPins = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        clinic = await StubCatalogService.Instance.GetDetailAsync(Id);
+        if (clinic != null)
+        {
+            clinicPins = new List<ClinicPin>
+            {
+                new(clinic.Id, clinic.Name, clinic.Area, clinic.City, clinic.Latitude, clinic.Longitude)
+            };
+        }
+    }
+}

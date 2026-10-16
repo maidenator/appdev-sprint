@@ -1,7 +1,302 @@
-﻿@page "/"
+@page "/"
+@using appdev_sprint.Components.Shared
+@using appdev_sprint.Components.Shared.Stubs
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Cebu Dental Tourism Hub — World-Class Care, Tropical Recovery</PageTitle>
 
-<h1>Hello, world!</h1>
+<!-- Hero Section -->
+<div class="hero-banner mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <span class="badge mb-3 px-3 py-2 text-uppercase fw-semibold" style="background-color: rgba(0, 168, 150, 0.25); color: #5eead4; border: 1px solid rgba(94, 234, 212, 0.3); letter-spacing: 0.05em;">
+                🇵🇭 Metro Cebu Dental Tourism Guide
+            </span>
+            <h1 class="display-5 fw-bold mb-3" style="line-height: 1.2;">
+                Save 50% to 70% on Premier Dental Implants & Veneers in Cebu
+            </h1>
+            <p class="lead mb-4" style="color: #cbd5e1; max-width: 680px;">
+                Connect with PRC-licensed cosmetic and implant dentists in Metro Cebu. World-class procedures with Osstem, Straumann & Nobel Biocare while recuperating by the beaches of Mactan Island.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="compare" class="btn btn-lg px-4 shadow" style="background-color: #00a896; color: #ffffff; font-weight: 600; border: none;">
+                    Calculate Your Savings &rarr;
+                </a>
+                <a href="clinics" class="btn btn-lg btn-outline-light px-4">
+                    Explore Verified Clinics
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4 d-none d-lg-block text-center">
+            <div class="p-4 rounded-4" style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15);">
+                <div class="text-uppercase small text-warning fw-bold mb-1">Average US vs Cebu Savings</div>
+                <div class="display-4 fw-bold text-white mb-2">₱190,000+</div>
+                <div class="small text-light mb-3">Saved per dental implant fixture + crown package including hotel & airport transfers.</div>
+                <a href="request" class="btn btn-sm btn-light w-100 fw-bold text-dark py-2">
+                    Request a Free Treatment Plan
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+<!-- Trust & Standards Bar -->
+<div class="row g-3 mb-5">
+    <div class="col-md-3 col-6">
+        <div class="trust-badge-card h-100 d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #e0f2fe; color: #0284c7; font-size: 1.2rem; flex-shrink: 0;">
+                🇵🇭
+            </div>
+            <div>
+                <div class="fw-bold" style="font-size: 0.95rem;">PRC Licensed</div>
+                <div class="text-muted small">Verified board dentists</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="trust-badge-card h-100 d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #fef3c7; color: #d97706; font-size: 1.2rem; flex-shrink: 0;">
+                🦷
+            </div>
+            <div>
+                <div class="fw-bold" style="font-size: 0.95rem;">Global Systems</div>
+                <div class="text-muted small">Osstem, Straumann, Nobel</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="trust-badge-card h-100 d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #dcfce7; color: #16a34a; font-size: 1.2rem; flex-shrink: 0;">
+                🔬
+            </div>
+            <div>
+                <div class="fw-bold" style="font-size: 0.95rem;">Class B Autoclave</div>
+                <div class="text-muted small">Strict sterilization protocol</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="trust-badge-card h-100 d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #ffedd5; color: #ea580c; font-size: 1.2rem; flex-shrink: 0;">
+                🏖️
+            </div>
+            <div>
+                <div class="fw-bold" style="font-size: 0.95rem;">Mactan Recovery</div>
+                <div class="text-muted small">Tropical beach proximity</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Map & Filter Section -->
+<div class="mb-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+        <div>
+            <span class="text-uppercase fw-bold small text-muted">Geographic Hub</span>
+            <h2 class="fw-bold mb-0" style="color: #0a2540;">Explore Metro Cebu Dental Clinics</h2>
+        </div>
+        <a href="clinics" class="btn btn-outline-primary btn-sm mt-2 mt-sm-0">
+            View All Clinic Listings &rarr;
+        </a>
+    </div>
+
+    <!-- Quick Filter Bar -->
+    <div class="filter-bar-card mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted mb-1">Target Procedure</label>
+                <select class="form-select" @onchange="OnProcedureChanged">
+                    <option value="">All Procedures</option>
+                    <option value="Implant">Dental Implant (₱65k - ₱150k)</option>
+                    <option value="AllOn4">All-on-4 Full Arch (₱400k - ₱800k)</option>
+                    <option value="Veneer">Porcelain Veneers (₱15k - ₱30k/tooth)</option>
+                    <option value="Crown">Porcelain/Zirconia Crown (₱8k - ₱22k)</option>
+                    <option value="Cleaning">Dental Cleaning (₱300 - ₱2.5k)</option>
+                    <option value="Whitening">Laser Whitening</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted mb-1">Max Treatment Budget: <strong>@(selectedMaxPrice.HasValue ? $"₱{selectedMaxPrice.Value:N0}" : "Any Price")</strong></label>
+                <input type="range" class="form-range" min="10000" max="700000" step="10000"
+                       value="@(selectedMaxPrice ?? 700000)"
+                       @oninput="OnPriceChanged" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted mb-1">Accreditation</label>
+                <select class="form-select" @onchange="OnAccreditationChanged">
+                    <option value="">Any Accreditation</option>
+                    <option value="ISO">ISO Certified</option>
+                    <option value="PhilHealth">PhilHealth Accredited</option>
+                    <option value="JCI">JCI Affiliated</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map & Side List Grid -->
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <LeafletMap Pins="@pins" SelectedPinId="@selectedClinicId" OnPinSelected="@HandlePinSelected" Height="480px" />
+            <div class="d-flex justify-content-between align-items-center mt-2 px-1 text-muted small">
+                <span><i class="bi bi-info-circle me-1"></i> Interactive map: Click pin to inspect clinic profile.</span>
+                <span class="badge bg-secondary">@pins.Count Pins Shown</span>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="d-flex flex-column gap-3" style="max-height: 510px; overflow-y: auto; padding-right: 4px;">
+                @if (clinics.Count == 0)
+                {
+                    <div class="alert alert-info py-4 text-center">
+                        No clinics match the current filter criteria. Try expanding your price or procedure filter.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var clinic in clinics)
+                    {
+                        var isSelected = clinic.Id == selectedClinicId;
+                        <div class="clinic-card @(isSelected ? "is-selected" : "")" @onclick="() => SelectClinic(clinic.Id)">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: #0f172a;">@clinic.Name</h5>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                        @clinic.Area, @clinic.City
+                                    </div>
+                                </div>
+                                @if (clinic.IsHospitalDepartment)
+                                {
+                                    <span class="badge bg-primary">Hospital Dept</span>
+                                }
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                @foreach (var acc in clinic.Accreditations.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    <span class="badge @(acc.Contains("ISO") ? "badge-iso" : "badge-philhealth")">@acc</span>
+                                }
+                                <span class="badge badge-system">Implant: @clinic.ImplantSystems</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <div>
+                                    <span class="text-muted small">Procedures from</span>
+                                    <div class="fw-bold text-success">
+                                        ₱@(clinic.Procedures.Count > 0 ? clinic.Procedures.Min(p => p.PricePhp).ToString("N0") : "N/A") PHP
+                                    </div>
+                                </div>
+                                <a href="clinics/@clinic.Id" class="btn btn-sm btn-outline-dark fw-semibold" @onclick:stopPropagation="true">
+                                    View Pricing &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison Callout Banner -->
+<div class="p-4 p-md-5 rounded-4 mb-5" style="background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%); border: 1px solid #bae6fd;">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <span class="badge bg-teal text-white mb-2 px-3 py-1" style="background-color: #00a896;">Cost Transparency</span>
+            <h3 class="fw-bold mb-2" style="color: #0a2540;">How much does Dental Tourism in Cebu save you?</h3>
+            <p class="text-secondary mb-3">
+                Use our real-time calculator comparing treatment + hotel stay + airport transfers + companion allowance against standard US, Australia, and UK pricing guides.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="compare" class="btn btn-primary px-4 fw-bold shadow-sm" style="background-color: #00627d; border-color: #004d61;">
+                    Open Comparison Tool &rarr;
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="bg-white p-3 rounded-3 shadow-sm border">
+                <div class="small fw-bold text-muted mb-2">Sample Single Implant Package</div>
+                <div class="d-flex justify-content-between py-1 border-bottom small">
+                    <span>US Average</span>
+                    <strong class="text-danger">$4,500 USD</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1 border-bottom small">
+                    <span>Cebu Treatment + Hotel</span>
+                    <strong class="text-success">$1,911 USD (₱118,500)</strong>
+                </div>
+                <div class="d-flex justify-content-between pt-2 fw-bold text-primary">
+                    <span>Your Estimated Savings</span>
+                    <span>$2,589 USD (57.5%)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ClinicPin> pins = new();
+    private List<ClinicDetail> clinics = new();
+    private int? selectedClinicId;
+    private ProcedureType? selectedProcedure;
+    private decimal? selectedMaxPrice;
+    private string? selectedAccreditation;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadClinics();
+    }
+
+    private async Task LoadClinics()
+    {
+        var filter = new ClinicFilter(selectedProcedure, selectedMaxPrice, selectedAccreditation);
+        pins = await StubCatalogService.Instance.GetPinsAsync(filter);
+        clinics = await StubCatalogService.Instance.GetClinicsAsync(filter);
+        if (selectedClinicId.HasValue && !pins.Any(p => p.Id == selectedClinicId.Value))
+        {
+            selectedClinicId = null;
+        }
+    }
+
+    private async Task OnProcedureChanged(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(val))
+        {
+            selectedProcedure = null;
+        }
+        else if (Enum.TryParse<ProcedureType>(val, out var parsed))
+        {
+            selectedProcedure = parsed;
+        }
+        await LoadClinics();
+    }
+
+    private async Task OnPriceChanged(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out var p))
+        {
+            selectedMaxPrice = p;
+        }
+        else
+        {
+            selectedMaxPrice = null;
+        }
+        await LoadClinics();
+    }
+
+    private async Task OnAccreditationChanged(ChangeEventArgs e)
+    {
+        selectedAccreditation = string.IsNullOrWhiteSpace(e.Value?.ToString()) ? null : e.Value.ToString();
+        await LoadClinics();
+    }
+
+    private void HandlePinSelected(int clinicId)
+    {
+        selectedClinicId = clinicId;
+        StateHasChanged();
+    }
+
+    private void SelectClinic(int clinicId)
+    {
+        selectedClinicId = clinicId;
+        StateHasChanged();
+    }
+}

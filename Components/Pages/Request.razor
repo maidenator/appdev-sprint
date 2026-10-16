@@ -1,0 +1,308 @@
+@page "/request"
+@using System.ComponentModel.DataAnnotations
+@using appdev_sprint.Components.Shared
+@using appdev_sprint.Components.Shared.Stubs
+
+<PageTitle>Request Free Dental Tourism Treatment Plan — Cebu Dental Hub</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        @if (isSubmitted && submittedInquiry != null)
+        {
+            <!-- Success Confirmation Screen -->
+            <div class="card border-0 shadow-lg rounded-4 p-5 text-center bg-white my-4">
+                <div class="mb-3">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 72px; height: 72px; background: #dcfce7; color: #16a34a; font-size: 2.2rem;">
+                        ✓
+                    </span>
+                </div>
+
+                <span class="badge bg-teal text-white mb-2 px-3 py-1 align-self-center" style="background-color: #00a896;">Inquiry Transmitted</span>
+                <h2 class="fw-bold mb-2" style="color: #0a2540;">Your Inquiry Has Been Received!</h2>
+                <p class="text-muted mb-4">
+                    Reference ID: <strong class="text-dark">CEB-INQ-@submittedInquiry.Id.ToString("D4")</strong>
+                </p>
+
+                <div class="card bg-light border p-4 text-start mb-4 rounded-3">
+                    <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Treatment Plan Summary:</h6>
+                    <div class="row g-2 small">
+                        <div class="col-sm-6">
+                            <span class="text-muted">Patient Name:</span>
+                            <strong class="d-block text-dark">@submittedInquiry.PatientName</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Home Country:</span>
+                            <strong class="d-block text-dark">@submittedInquiry.HomeCountry</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Selected Clinic:</span>
+                            <strong class="d-block text-dark">@submittedInquiry.ClinicName</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Requested Procedure:</span>
+                            <strong class="d-block text-dark">@submittedInquiry.ProcedureName</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Target Travel Date:</span>
+                            <strong class="d-block text-dark">@(submittedInquiry.PreferredDate?.ToString("MMMM dd, yyyy") ?? "Flexible")</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Traveling Companions:</span>
+                            <strong class="d-block text-dark">@submittedInquiry.CompanionCount companion@(submittedInquiry.CompanionCount == 1 ? "" : "s")</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Steps Timeline -->
+                <div class="text-start mb-4">
+                    <h6 class="fw-bold text-dark mb-2">What Happens Next:</h6>
+                    <ol class="small text-muted ps-3 mb-0">
+                        <li class="mb-1"><strong>Doctor Evaluation (Within 24 Hours):</strong> The clinic’s chief dental surgeon evaluates your requirements and requests any digital X-rays or photos.</li>
+                        <li class="mb-1"><strong>Formal Written Quote:</strong> You receive an itemized, binding treatment guarantee in Philippine Pesos (PHP) and USD.</li>
+                        <li><strong>Travel & Transfer Assistance:</strong> Dedicated patient coordinator assists with Mactan airport VIP pickup and recovery resort reservations.</li>
+                    </ol>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="clinics" class="btn btn-outline-secondary">Browse More Clinics</a>
+                    <button class="btn btn-primary" style="background-color: #00627d; border-color: #004d61;" @onclick="ResetForm">
+                        Submit Another Inquiry
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Inquiry Form Header -->
+            <div class="mb-4 text-center">
+                <span class="badge bg-teal text-white mb-2 px-3 py-1" style="background-color: #00a896;">Direct Clinic Transmission</span>
+                <h1 class="display-6 fw-bold mb-2" style="color: #0a2540;">Request a Free Written Treatment Plan</h1>
+                <p class="text-muted">Receive a comprehensive, itemized quote in Philippine Pesos directly from PRC-licensed dental specialists in Metro Cebu. Zero booking fees or commission.</p>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+                <EditForm Model="@model" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="row g-3">
+                        <!-- Clinic Dropdown -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Select Cebu Dental Clinic *</label>
+                            <InputSelect class="form-select" @bind-Value="model.ClinicId" @bind-Value:after="OnClinicSelectionChanged">
+                                <option value="0">-- Choose a clinic --</option>
+                                @foreach (var c in clinics)
+                                {
+                                    <option value="@c.Id">@c.Name (@c.Area)</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => model.ClinicId)" class="text-danger small mt-1" />
+                        </div>
+
+                        <!-- Procedure Dropdown -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Requested Procedure *</label>
+                            <InputSelect class="form-select" @bind-Value="model.ProcedureId">
+                                <option value="0">-- Choose procedure --</option>
+                                @foreach (var p in availableProcedures)
+                                {
+                                    <option value="@p.Id">@p.Type — ₱@p.PricePhp.ToString("N0") PHP</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => model.ProcedureId)" class="text-danger small mt-1" />
+                        </div>
+
+                        <!-- Patient Name -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Full Name *</label>
+                            <InputText class="form-control" @bind-Value="model.PatientName" placeholder="e.g. John Smith" />
+                            <ValidationMessage For="@(() => model.PatientName)" class="text-danger small mt-1" />
+                        </div>
+
+                        <!-- Contact Details -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Email Address or Phone *</label>
+                            <InputText class="form-control" @bind-Value="model.Contact" placeholder="e.g. john@example.com or +1 415-555-0100" />
+                            <ValidationMessage For="@(() => model.Contact)" class="text-danger small mt-1" />
+                        </div>
+
+                        <!-- Home Country -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Home Country *</label>
+                            <InputSelect class="form-select" @bind-Value="model.HomeCountry">
+                                <option value="United States">United States</option>
+                                <option value="Australia">Australia</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="Canada">Canada</option>
+                                <option value="New Zealand">New Zealand</option>
+                                <option value="Other">Other International</option>
+                            </InputSelect>
+                            <ValidationMessage For="@(() => model.HomeCountry)" class="text-danger small mt-1" />
+                        </div>
+
+                        <!-- Preferred Travel Date -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Preferred Travel Date</label>
+                            <InputDate class="form-control" @bind-Value="model.PreferredDate" />
+                        </div>
+
+                        <!-- Companion Count -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Traveling Companions</label>
+                            <InputSelect class="form-select" @bind-Value="model.CompanionCount">
+                                <option value="0">0 (Solo Traveler)</option>
+                                <option value="1">1 Companion</option>
+                                <option value="2">2 Companions</option>
+                                <option value="3">3 Companions</option>
+                                <option value="4">4+ Companions</option>
+                            </InputSelect>
+                        </div>
+
+                        <!-- Dental Notes & History -->
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">Dental History & Specific Goals</label>
+                            <InputTextArea class="form-control" rows="4" @bind-Value="model.Notes" placeholder="Describe your dental requirements, tooth numbers, current discomfort, or if you already have digital OPG panorex X-rays ready to email..." />
+                        </div>
+
+                        <!-- Trust Checkbox -->
+                        <div class="col-12">
+                            <div class="form-check p-3 rounded-2 bg-light border">
+                                <input class="form-check-input" type="checkbox" id="consentCheck" checked required />
+                                <label class="form-check-label small text-muted" for="consentCheck">
+                                    I agree to receive a free written treatment plan in Philippine Pesos (PHP) directly from the clinic. My medical data is transmitted privately with zero advertising spam.
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg w-100 shadow py-3 fw-bold" style="background-color: #00a896; border-color: #009383;">
+                                Submit Treatment Request &rarr;
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int? ClinicId { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? ProcedureId { get; set; }
+
+    private InquiryFormModel model = new();
+    private List<ClinicDetail> clinics = new();
+    private List<ProcedureItem> availableProcedures = new();
+    private bool isSubmitted = false;
+    private InquiryItem? submittedInquiry;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clinics = await StubCatalogService.Instance.GetClinicsAsync();
+
+        if (ClinicId.HasValue && ClinicId.Value > 0)
+        {
+            model.ClinicId = ClinicId.Value;
+        }
+        else if (clinics.Count > 0)
+        {
+            model.ClinicId = clinics.First().Id;
+        }
+
+        UpdateAvailableProcedures();
+
+        if (ProcedureId.HasValue && ProcedureId.Value > 0)
+        {
+            model.ProcedureId = ProcedureId.Value;
+        }
+        else if (availableProcedures.Count > 0)
+        {
+            model.ProcedureId = availableProcedures.First().Id;
+        }
+
+        model.PreferredDate = DateTime.Today.AddDays(30);
+    }
+
+    private void OnClinicSelectionChanged()
+    {
+        UpdateAvailableProcedures();
+        if (availableProcedures.Count > 0)
+        {
+            model.ProcedureId = availableProcedures.First().Id;
+        }
+        else
+        {
+            model.ProcedureId = 0;
+        }
+    }
+
+    private void UpdateAvailableProcedures()
+    {
+        var selClinic = clinics.FirstOrDefault(c => c.Id == model.ClinicId);
+        availableProcedures = selClinic?.Procedures ?? new List<ProcedureItem>();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // TODO(contract #3): Consumes InquiryService.SubmitAsync once backend branch lands.
+        submittedInquiry = await StubInquiryService.Instance.SubmitAsync(
+            model.ClinicId,
+            model.ProcedureId,
+            model.PatientName,
+            model.Contact,
+            model.HomeCountry,
+            model.PreferredDate,
+            model.CompanionCount,
+            model.Notes ?? ""
+        );
+
+        isSubmitted = true;
+    }
+
+    private void ResetForm()
+    {
+        model = new InquiryFormModel
+        {
+            ClinicId = clinics.FirstOrDefault()?.Id ?? 0,
+            HomeCountry = "United States",
+            PreferredDate = DateTime.Today.AddDays(30)
+        };
+        UpdateAvailableProcedures();
+        if (availableProcedures.Count > 0)
+        {
+            model.ProcedureId = availableProcedures.First().Id;
+        }
+        isSubmitted = false;
+        submittedInquiry = null;
+    }
+
+    public class InquiryFormModel
+    {
+        [Required(ErrorMessage = "Please select a clinic")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a clinic")]
+        public int ClinicId { get; set; }
+
+        [Required(ErrorMessage = "Please select a procedure")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a procedure")]
+        public int ProcedureId { get; set; }
+
+        [Required(ErrorMessage = "Please enter your full name")]
+        [MinLength(2, ErrorMessage = "Name must be at least 2 characters")]
+        public string PatientName { get; set; } = "";
+
+        [Required(ErrorMessage = "Please enter your email or phone number")]
+        public string Contact { get; set; } = "";
+
+        [Required(ErrorMessage = "Please select your home country")]
+        public string HomeCountry { get; set; } = "United States";
+
+        public DateTime? PreferredDate { get; set; }
+
+        public int CompanionCount { get; set; } = 0;
+
+        public string? Notes { get; set; }
+    }
+}
