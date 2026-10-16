@@ -7,7 +7,7 @@
 @inject ClinicCatalogService CatalogService
 @inject InquiryService InquiryService
 
-<PageTitle>Request Free Dental Tourism Treatment Plan — Cebu Dental Hub</PageTitle>
+<PageTitle>Request a Free Quote — Cebu Dental Hub</PageTitle>
 
 <div class="row justify-content-center">
     <div class="col-lg-8 col-md-10">
@@ -47,11 +47,11 @@
                             <strong class="d-block text-dark">@confirmedProcName</strong>
                         </div>
                         <div class="col-sm-6">
-                            <span class="text-muted">Target Travel Date:</span>
+                            <span class="text-muted">Preferred Visit Date:</span>
                             <strong class="d-block text-dark">@(submittedInquiry.PreferredDate?.ToString("MMMM dd, yyyy") ?? "Flexible")</strong>
                         </div>
                         <div class="col-sm-6">
-                            <span class="text-muted">Traveling Companions:</span>
+                            <span class="text-muted">Companions Coming Along:</span>
                             <strong class="d-block text-dark">@submittedInquiry.CompanionCount companion@(submittedInquiry.CompanionCount == 1 ? "" : "s")</strong>
                         </div>
                     </div>
@@ -62,8 +62,8 @@
                     <h6 class="fw-bold text-dark mb-2">What Happens Next:</h6>
                     <ol class="small text-muted ps-3 mb-0">
                         <li class="mb-1"><strong>Doctor Evaluation (Within 24 Hours):</strong> The clinic’s chief dental surgeon evaluates your requirements and requests any digital X-rays or photos.</li>
-                        <li class="mb-1"><strong>Formal Written Quote:</strong> You receive an itemized, binding treatment guarantee in Philippine Pesos (PHP) and USD.</li>
-                        <li><strong>Travel & Transfer Assistance:</strong> Dedicated patient coordinator assists with Mactan airport VIP pickup and recovery resort reservations.</li>
+                        <li class="mb-1"><strong>Formal Written Quote:</strong> You receive an itemized, binding treatment quote in Philippine Pesos (PHP).</li>
+                        <li><strong>Appointment Assistance:</strong> The clinic confirms your slot and sends directions with parking and landmark guidance.</li>
                     </ol>
                 </div>
 
@@ -129,31 +129,30 @@
                             <ValidationMessage For="@(() => model.Contact)" class="text-danger small mt-1" />
                         </div>
 
-                        <!-- Home Country -->
+                        <!-- Based In -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted">Home Country *</label>
+                            <label class="form-label small fw-bold text-muted">Where Are You Based? *</label>
                             <InputSelect class="form-select" @bind-Value="model.HomeCountry">
-                                <option value="United States">United States</option>
-                                <option value="Australia">Australia</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                                <option value="Canada">Canada</option>
-                                <option value="New Zealand">New Zealand</option>
-                                <option value="Other">Other International</option>
+                                <option value="Cebu City">Cebu City</option>
+                                <option value="Mandaue City">Mandaue City</option>
+                                <option value="Lapu-Lapu City">Lapu-Lapu City</option>
+                                <option value="Elsewhere in Cebu">Elsewhere in Cebu</option>
+                                <option value="Outside Cebu">Outside Cebu</option>
                             </InputSelect>
                             <ValidationMessage For="@(() => model.HomeCountry)" class="text-danger small mt-1" />
                         </div>
 
-                        <!-- Preferred Travel Date -->
+                        <!-- Preferred Visit Date -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted">Preferred Travel Date</label>
+                            <label class="form-label small fw-bold text-muted">Preferred Visit Date</label>
                             <InputDate class="form-control" @bind-Value="model.PreferredDate" />
                         </div>
 
                         <!-- Companion Count -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted">Traveling Companions</label>
+                            <label class="form-label small fw-bold text-muted">Companions Coming Along</label>
                             <InputSelect class="form-select" @bind-Value="model.CompanionCount">
-                                <option value="0">0 (Solo Traveler)</option>
+                                <option value="0">0 (Just me)</option>
                                 <option value="1">1 Companion</option>
                                 <option value="2">2 Companions</option>
                                 <option value="3">3 Companions</option>
@@ -277,7 +276,7 @@
         model = new InquiryFormModel
         {
             ClinicId = clinics.FirstOrDefault()?.Id ?? 0,
-            HomeCountry = "United States",
+            HomeCountry = "Cebu City",
             PreferredDate = DateTime.Today.AddDays(30)
         };
         UpdateAvailableProcedures();
@@ -306,8 +305,8 @@
         [Required(ErrorMessage = "Please enter your email or phone number")]
         public string Contact { get; set; } = "";
 
-        [Required(ErrorMessage = "Please select your home country")]
-        public string HomeCountry { get; set; } = "United States";
+        [Required(ErrorMessage = "Please tell us where you are based")]
+        public string HomeCountry { get; set; } = "Cebu City";
 
         public DateTime? PreferredDate { get; set; }
 

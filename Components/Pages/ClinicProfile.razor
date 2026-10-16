@@ -5,7 +5,7 @@
 @using appdev_sprint.Services
 @inject ClinicCatalogService CatalogService
 
-<PageTitle>@(clinic != null ? $"{clinic.Name} — Metro Cebu Dental" : "Clinic Details — Cebu Dental Tourism Hub")</PageTitle>
+<PageTitle>@(clinic != null ? $"{clinic.Name} — Metro Cebu Dental" : "Clinic Details — Cebu Dental Hub")</PageTitle>
 
 @if (clinic == null)
 {
@@ -121,8 +121,8 @@ else
     <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h4 class="h5 fw-bold mb-1" style="color: #0a2540;">Procedures, PHP Pricing & Recovery Schedule</h4>
-                <p class="text-muted small mb-0">Detailed breakdown of chair days, recovery nights, and trip scheduling.</p>
+                <h4 class="h5 fw-bold mb-1" style="color: #0a2540;">Procedures, PHP Pricing & Visit Schedule</h4>
+                <p class="text-muted small mb-0">Detailed breakdown of chair days, recovery nights, and visit scheduling.</p>
             </div>
             <span class="badge bg-light text-dark border">July 2026 Price Anchors</span>
         </div>
@@ -133,7 +133,7 @@ else
                     <tr>
                         <th style="min-width: 140px;">Procedure</th>
                         <th style="min-width: 120px;">Price (PHP)</th>
-                        <th style="min-width: 130px;">Trip Protocol</th>
+                        <th style="min-width: 130px;">Visits Needed</th>
                         <th style="min-width: 140px;">Chair vs Recovery</th>
                         <th style="min-width: 250px;">Package Inclusions</th>
                         <th class="text-end" style="min-width: 130px;">Action</th>
@@ -152,25 +152,24 @@ else
                             </td>
                             <td>
                                 <div class="h6 fw-bold text-success mb-0">₱@proc.PricePhp.ToString("N0")</div>
-                                <div class="text-muted small">≈ $@((proc.PricePhp / 62m).ToString("N0")) USD</div>
                             </td>
                             <td>
                                 @if (proc.TwoTrips)
                                 {
                                     <span class="badge badge-trip-two d-inline-block p-2" style="font-size: 0.75rem;">
-                                        ✈️ 2 Trips Required
+                                        2 Visits Needed
                                     </span>
                                     <div class="small text-muted mt-1" style="font-size: 0.75rem;">
-                                        3–6 mo. osseointegration gap
+                                        Crown fitted 3–6 mo. after placement
                                     </div>
                                 }
                                 else
                                 {
                                     <span class="badge badge-trip-single d-inline-block p-2" style="font-size: 0.75rem;">
-                                        ✈️ Single Trip (3–5 Days)
+                                        Single Visit (3–5 Days)
                                     </span>
                                     <div class="small text-muted mt-1" style="font-size: 0.75rem;">
-                                        Completed in 1 holiday visit
+                                        Completed in one visit
                                     </div>
                                 }
                             </td>
@@ -198,47 +197,47 @@ else
         </div>
     </div>
 
-    <!-- Recovery Angle & Companion Leisure -->
+    <!-- Recovery & Aftercare -->
     <div class="row g-4 mb-4">
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm rounded-3 p-4 bg-white h-100">
                 <h4 class="h5 fw-bold mb-3" style="color: #0a2540;">
-                    🏖️ Tropical Recovery & Companion Experience
+                    🦷 Recovery & Aftercare in Cebu
                 </h4>
                 <p class="text-muted small">
-                    Dental procedures in Cebu allow comfortable recovery in luxury beach resorts or modern urban suites, with companion activities available throughout the holiday.
+                    What to expect after your appointment, and how follow-ups work at this clinic.
                 </p>
 
                 <div class="row g-3">
                     <div class="col-sm-6">
                         <div class="p-3 rounded-3 border bg-light">
-                            <h6 class="fw-bold mb-1 text-dark">Mactan Island Beach Resorts</h6>
+                            <h6 class="fw-bold mb-1 text-dark">Free Follow-up Checkups</h6>
                             <p class="text-muted small mb-0">
-                                Located ~20–30 minutes from Metro Cebu clinics. Ideal for gentle recuperation by the pool with 24/7 room service.
+                                Post-treatment reviews are typically free. Implants return once more in 3–6 months for the permanent crown.
                             </p>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="p-3 rounded-3 border bg-light">
-                            <h6 class="fw-bold mb-1 text-dark">Companion Leisure</h6>
+                            <h6 class="fw-bold mb-1 text-dark">Soft-Food Aftercare</h6>
                             <p class="text-muted small mb-0">
-                                Island-hopping tours in Hilutungan & Nalusuan marine sanctuaries, Ayala Center Cebu shopping, and heritage walks.
+                                Lugaw, sopas, mashed root crops, and fresh buko juice for the first few days. Avoid hot, spicy, and crunchy food.
                             </p>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="p-3 rounded-3 border bg-light">
-                            <h6 class="fw-bold mb-1 text-dark">Airport Transfers</h6>
+                            <h6 class="fw-bold mb-1 text-dark">Getting There</h6>
                             <p class="text-muted small mb-0">
-                                Mactan-Cebu International Airport (MCIA) is connected via the CCLEX expressway, ensuring swift private transfers.
+                                Most clinics sit near malls or main roads — jeep, taxi, or Grab. Ask the clinic for the nearest landmark and parking.
                             </p>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="p-3 rounded-3 border bg-light">
-                            <h6 class="fw-bold mb-1 text-dark">Recovery Diet Assistance</h6>
+                            <h6 class="fw-bold mb-1 text-dark">Urgent Concerns</h6>
                             <p class="text-muted small mb-0">
-                                Soft-food catering and fresh local fruit juices (mango, coconut) available throughout hotel recovery.
+                                Bleeding that won't stop, severe swelling, or fever after a procedure? Contact the clinic right away — details above.
                             </p>
                         </div>
                     </div>

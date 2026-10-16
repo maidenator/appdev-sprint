@@ -5,18 +5,18 @@
 @using appdev_sprint.Services
 @inject ClinicCatalogService CatalogService
 
-<PageTitle>Cebu Dental Tourism Package Savings Calculator</PageTitle>
+<PageTitle>Compare Dental Clinic Prices in Cebu</PageTitle>
 
 <div class="mb-4">
-    <span class="badge bg-teal text-white mb-2 px-3 py-1" style="background-color: #00a896;">Cost Savings Engine</span>
-    <h1 class="display-6 fw-bold mb-1" style="color: #0a2540;">Side-by-Side Dental Package Savings Calculator</h1>
-    <p class="text-muted">Compare home-country dental costs (US, Australia, UK) against complete Cebu tourism packages including treatment, hotel accommodation, airport transfers, and companion daily expenses.</p>
+    <span class="badge bg-teal text-white mb-2 px-3 py-1" style="background-color: #00a896;">Price Transparency</span>
+    <h1 class="display-6 fw-bold mb-1" style="color: #0a2540;">Side-by-Side Clinic Price Comparison</h1>
+    <p class="text-muted">Compare transparent treatment prices across Metro Cebu clinics, in Philippine Pesos. No travel math — you're already here.</p>
 </div>
 
 <!-- Calculator Controls Bar -->
 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
     <div class="row g-3 align-items-end">
-        <div class="col-md-3 col-sm-6">
+        <div class="col-md-4 col-sm-6">
             <label class="form-label small fw-bold text-muted">1. Select Procedure</label>
             <select class="form-select form-select-lg" @onchange="OnProcedureChanged" value="@selectedProcedure">
                 <option value="Implant">Dental Implant (Single + Crown)</option>
@@ -26,27 +26,7 @@
             </select>
         </div>
 
-        <div class="col-md-3 col-sm-6">
-            <label class="form-label small fw-bold text-muted">2. Home Country Price Anchor</label>
-            <select class="form-select form-select-lg" @onchange="OnCountryChanged" value="@selectedCountry">
-                <option value="United States">🇺🇸 United States (USD)</option>
-                <option value="Australia">🇦🇺 Australia (AUD converted to USD)</option>
-                <option value="United Kingdom">🇬🇧 United Kingdom (GBP converted to USD)</option>
-            </select>
-            <div class="form-text text-muted small" style="font-size: 0.75rem;">* Note: South Korea excluded (not cheaper for foreign dental travelers).</div>
-        </div>
-
-        <div class="col-md-3 col-sm-6">
-            <label class="form-label small fw-bold text-muted">3. Companion Count</label>
-            <select class="form-select form-select-lg" @onchange="OnCompanionChanged" value="@companionCount">
-                <option value="0">Solo Traveler (0 companions)</option>
-                <option value="1">1 Traveling Companion</option>
-                <option value="2">2 Traveling Companions</option>
-                <option value="3">3 Traveling Companions</option>
-            </select>
-        </div>
-
-        <div class="col-md-3 col-sm-6">
+        <div class="col-md-4 col-sm-6">
             <button class="btn btn-primary btn-lg w-100 shadow-sm fw-bold" style="background-color: #00a896; border-color: #009383;" @onclick="Recalculate">
                 Update Comparison
             </button>
@@ -79,46 +59,34 @@
 </div>
 
 <!-- Comparison Results -->
-@if (packageQuotes.Count == 0)
+@if (clinicPrices.Count == 0)
 {
     <div class="alert alert-warning py-4 text-center">
-        No price anchors or clinics found for this selection. Please select at least one clinic above.
+        No clinics offer this procedure for the current selection. Please select at least one clinic above.
     </div>
 }
 else
 {
-    var firstQuote = packageQuotes.First();
-    <!-- Home Country Baseline Bar -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-light">
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div>
-                <span class="text-uppercase small fw-bold text-muted">Baseline Home Country Estimate</span>
-                <h3 class="fw-bold mb-0" style="color: #0a2540;">
-                    @firstQuote.HomeCountry — @firstQuote.ProcedureType
-                </h3>
-            </div>
-            <div class="text-end mt-2 mt-sm-0">
-                <span class="text-muted small d-block">Estimated Home Procedure Price:</span>
-                <span class="display-6 fw-bold text-danger">$@firstQuote.HomePriceUsd.ToString("N0") USD</span>
-            </div>
-        </div>
-    </div>
-
+    var bestPrice = clinicPrices.Min(q => q.Procedure.PricePhp);
     <!-- Comparison Cards Grid -->
     <div class="row g-4 mb-4">
-        @foreach (var quote in packageQuotes)
+        @foreach (var quote in clinicPrices)
         {
+            var isBest = quote.Procedure.PricePhp == bestPrice;
             <div class="col-lg-4 col-md-6">
                 <div class="card border-0 shadow rounded-4 overflow-hidden h-100 bg-white">
-                    <!-- Card Top Savings Banner -->
+                    <!-- Card Top Price Banner -->
                     <div class="p-3 text-white text-center" style="background: linear-gradient(135deg, #00a896 0%, #00627d 100%);">
-                        <span class="text-uppercase small fw-bold" style="letter-spacing: 0.05em; opacity: 0.9;">Total Net Savings</span>
+                        <span class="text-uppercase small fw-bold" style="letter-spacing: 0.05em; opacity: 0.9;">Treatment Price</span>
                         <div class="display-6 fw-bold">
-                            $@quote.SavingsUsd.ToString("N0") <span style="font-size: 1.1rem; opacity: 0.9;">USD</span>
+                            ₱@quote.Procedure.PricePhp.ToString("N0")
                         </div>
-                        <span class="badge bg-warning text-dark fw-bold px-3 py-1">
-                            Save @quote.SavingsPct% vs Home
-                        </span>
+                        @if (isBest)
+                        {
+                            <span class="badge bg-warning text-dark fw-bold px-3 py-1">
+                                Best price in Cebu
+                            </span>
+                        }
                     </div>
 
                     <!-- Card Body Breakdown -->
@@ -133,44 +101,34 @@ else
 
                             <hr class="my-3 text-muted" />
 
-                            <div class="small fw-bold text-muted mb-2 text-uppercase" style="letter-spacing: 0.04em;">Cebu Package Itemization:</div>
+                            <div class="small fw-bold text-muted mb-2 text-uppercase" style="letter-spacing: 0.04em;">@quote.Procedure.Type — What's Included:</div>
 
                             <div class="d-flex justify-content-between py-1 border-bottom small">
-                                <span>Dental Treatment (@quote.ProcedureType)</span>
-                                <strong class="text-dark">₱@quote.TreatmentPhp.ToString("N0")</strong>
+                                <span>Visits needed</span>
+                                @if (quote.Procedure.TwoTrips)
+                                {
+                                    <strong class="text-dark">2 visits <span class="text-muted fw-normal">(crown fitted 3–6 mo. later)</span></strong>
+                                }
+                                else
+                                {
+                                    <strong class="text-dark">1 visit (3–5 days)</strong>
+                                }
                             </div>
 
                             <div class="d-flex justify-content-between py-1 border-bottom small">
-                                <span>Hotel (@quote.StayNights nights @@ ₱3.5k)</span>
-                                <span class="text-muted">₱@quote.HotelPhp.ToString("N0")</span>
+                                <span>Chair time / recovery</span>
+                                <span class="text-muted">@quote.Procedure.ChairDays chair day@(quote.Procedure.ChairDays == 1 ? "" : "s") · @quote.Procedure.RecoveryNights recovery night@(quote.Procedure.RecoveryNights == 1 ? "" : "s")</span>
                             </div>
 
-                            <div class="d-flex justify-content-between py-1 border-bottom small">
-                                <span>Airport & Clinic Transfers</span>
-                                <span class="text-muted">₱@quote.TransfersPhp.ToString("N0")</span>
-                            </div>
-
-                            @if (quote.CompanionPhp > 0)
-                            {
-                                <div class="d-flex justify-content-between py-1 border-bottom small">
-                                    <span>Companion Daily Allowance (@companionCount companion@(companionCount == 1 ? "" : "s"))</span>
-                                    <span class="text-muted">₱@quote.CompanionPhp.ToString("N0")</span>
-                                </div>
-                            }
-
-                            <div class="d-flex justify-content-between pt-3 pb-2 mb-3 bg-light px-2 rounded-2">
-                                <span class="fw-bold text-dark">Total Cebu Package Cost:</span>
-                                <div class="text-end">
-                                    <div class="fw-bold text-success">₱@quote.TotalPhp.ToString("N0") PHP</div>
-                                    <div class="text-muted small">≈ $@quote.TotalUsd.ToString("N0") USD</div>
-                                </div>
+                            <div class="py-1 small text-muted">
+                                @quote.Procedure.Inclusions
                             </div>
                         </div>
 
                         <!-- Card CTA -->
                         <div class="pt-2">
                             <a href="request?clinicId=@quote.ClinicId" class="btn btn-primary w-100 py-2 fw-bold shadow-sm" style="background-color: #00627d; border-color: #004d61;">
-                                Inquire for this Package &rarr;
+                                Request a Quote &rarr;
                             </a>
                         </div>
                     </div>
@@ -179,28 +137,22 @@ else
         }
     </div>
 
-    <!-- Methodology & Domain Footnotes -->
+    <!-- Notes -->
     <div class="card border-0 bg-light p-4 rounded-3 text-muted small">
-        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle me-1"></i> Calculation Methodology & Assumptions:</h6>
+        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle me-1"></i> About These Prices:</h6>
         <ul class="mb-0 ps-3">
-            <li><strong>Treatment Cost:</strong> Official seed-price anchors for accredited Metro Cebu clinics in Philippine Pesos (PHP).</li>
-            <li><strong>Stay Duration:</strong> Procedure chair days + recovery nights + 4 travel buffer days.</li>
-            <li><strong>Hotel:</strong> Mid-range Cebu/Mactan accommodation estimated at ₱3,500/night.</li>
-            <li><strong>Transfers:</strong> Private airport and clinic return transfers estimated at ₱2,500 flat.</li>
-            <li><strong>Companion Allowance:</strong> Estimated daily tourism and dining spend of ₱2,000/day per accompanying traveler.</li>
-            <li><strong>Exchange Rate:</strong> Converted at reference anchor of ₱62 PHP per $1 USD. Australian Dollars (AUD) converted at 0.66; British Pounds (GBP) converted at 1.27.</li>
+            <li><strong>Prices in Philippine Pesos (PHP):</strong> indicative per-clinic anchors to compare at a glance — always confirm a written quote with the clinic.</li>
+            <li><strong>Implants need 2 visits:</strong> placement first, permanent crown 3–6 months later after the bone heals. Veneers and crowns finish in a single visit.</li>
         </ul>
     </div>
 }
 
 @code {
     private ProcedureType selectedProcedure = ProcedureType.Implant;
-    private string selectedCountry = "United States";
-    private int companionCount = 0;
 
     private List<Clinic> allAvailableClinics = new();
     private HashSet<int> selectedClinicIds = new() { 1, 2, 3 }; // Defaults to Banilad, IT Park, Mandaue
-    private List<PackageQuote> packageQuotes = new();
+    private List<ClinicPrice> clinicPrices = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -213,21 +165,6 @@ else
         if (Enum.TryParse<ProcedureType>(e.Value?.ToString(), out var proc))
         {
             selectedProcedure = proc;
-            await Recalculate();
-        }
-    }
-
-    private async Task OnCountryChanged(ChangeEventArgs e)
-    {
-        selectedCountry = e.Value?.ToString() ?? "United States";
-        await Recalculate();
-    }
-
-    private async Task OnCompanionChanged(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out var count))
-        {
-            companionCount = count;
             await Recalculate();
         }
     }
@@ -250,10 +187,8 @@ else
 
     private async Task Recalculate()
     {
-        packageQuotes = await CatalogService.CompareAsync(
+        clinicPrices = await CatalogService.GetPricesAsync(
             selectedProcedure,
-            selectedCountry,
-            companionCount,
             selectedClinicIds.ToArray()
         );
     }

@@ -106,6 +106,32 @@ public class CatalogTests
         Assert.Contains("Australia", countries);
         Assert.Contains("United Kingdom", countries);
     }
+
+    [Fact]
+    public async Task GetPrices_Implant_ReturnsSixClinics_SortedCheapestFirst()
+    {
+        using var db = new TestDb();
+        var svc = new ClinicCatalogService(db.Context);
+        var ids = (await svc.GetPinsAsync()).Select(p => p.Id).ToArray();
+
+        var prices = await svc.GetPricesAsync(ProcedureType.Implant, ids);
+
+        Assert.Equal(6, prices.Count);
+        Assert.Equal(prices.OrderBy(p => p.Procedure.PricePhp).Select(p => p.ClinicId),
+            prices.Select(p => p.ClinicId));
+        Assert.Equal("Mabolo", prices[0].ClinicArea);
+        Assert.Equal(70000m, prices[0].Procedure.PricePhp);
+        Assert.All(prices, p => Assert.False(string.IsNullOrWhiteSpace(p.ClinicName)));
+    }
+
+    [Fact]
+    public async Task GetPrices_UnknownClinics_ReturnsEmpty()
+    {
+        using var db = new TestDb();
+        var svc = new ClinicCatalogService(db.Context);
+
+        Assert.Empty(await svc.GetPricesAsync(ProcedureType.Veneer, new[] { 9999 }));
+    }
 }
 
 public class InquiryTests

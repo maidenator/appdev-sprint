@@ -21,7 +21,10 @@ public record ClinicDetail(
     string ImplantSystems, bool IsHospitalDepartment,
     List<Procedure> Procedures);
 
-// Compare-page result: Cebu package vs. home-country anchor.
+// Local price lookup for Cebu residents: treatment prices in PHP, no travel math.
+public record ClinicPrice(int ClinicId, string ClinicName, string ClinicArea, Procedure Procedure);
+
+// Compare-page result: Cebu package vs. home-country anchor (kept for reference).
 public record PackageQuote(
     int ClinicId, string ClinicName, string ClinicArea,
     ProcedureType ProcedureType, decimal TreatmentPhp,
@@ -64,6 +67,16 @@ public class ClinicCatalogService(AppDbContext db)
             c.Id, c.Name, c.Area, c.City, c.Latitude, c.Longitude,
             c.Accreditations, c.Languages, c.Contact,
             c.ImplantSystems, c.IsHospitalDepartment, c.Procedures);
+    }
+
+    public async Task<List<ClinicPrice>> GetPricesAsync(ProcedureType type, int[] clinicIds)
+    {
+        // Note: ORDER BY on decimal isn't translatable by SQLite — sort client-side.
+        var rows = await db.Procedures.Include(p => p.Clinic)
+            .Where(p => p.Type == type && clinicIds.Contains(p.ClinicId) && p.Clinic!.Published)
+            .Select(p => new ClinicPrice(p.ClinicId, p.Clinic!.Name, p.Clinic.Area, p))
+            .ToListAsync();
+        return rows.OrderBy(p => p.Procedure.PricePhp).ToList();
     }
 
     public async Task<List<PackageQuote>> CompareAsync(ProcedureType type, string homeCountry, int companionCount, int[] clinicIds)
