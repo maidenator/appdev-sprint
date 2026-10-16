@@ -147,7 +147,7 @@ window.cebuMapInterop = {
 
             marker.on('click', () => {
                 if (state.dotNetRef) {
-                    state.dotNetRef.invokeMethodAsync('OnPinSelected', pin.id);
+                    state.dotNetRef.invokeMethodAsync('OnPinSelectedFromJs', pin.id);
                 }
             });
 
