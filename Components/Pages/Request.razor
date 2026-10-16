@@ -1,7 +1,10 @@
-@page "/request"
+﻿@page "/request"
 @using System.ComponentModel.DataAnnotations
 @using appdev_sprint.Components.Shared
-@using appdev_sprint.Components.Shared.Stubs
+@using appdev_sprint.Models
+@using appdev_sprint.Services
+@inject ClinicCatalogService CatalogService
+@inject InquiryService InquiryService
 
 <PageTitle>Request Free Dental Tourism Treatment Plan — Cebu Dental Hub</PageTitle>
 
@@ -36,11 +39,11 @@
                         </div>
                         <div class="col-sm-6">
                             <span class="text-muted">Selected Clinic:</span>
-                            <strong class="d-block text-dark">@submittedInquiry.ClinicName</strong>
+                            <strong class="d-block text-dark">@confirmedClinicName</strong>
                         </div>
                         <div class="col-sm-6">
                             <span class="text-muted">Requested Procedure:</span>
-                            <strong class="d-block text-dark">@submittedInquiry.ProcedureName</strong>
+                            <strong class="d-block text-dark">@confirmedProcName</strong>
                         </div>
                         <div class="col-sm-6">
                             <span class="text-muted">Target Travel Date:</span>
@@ -194,14 +197,16 @@
     public int? ProcedureId { get; set; }
 
     private InquiryFormModel model = new();
-    private List<ClinicDetail> clinics = new();
-    private List<ProcedureItem> availableProcedures = new();
+    private List<Clinic> clinics = new();
+    private List<Procedure> availableProcedures = new();
     private bool isSubmitted = false;
-    private InquiryItem? submittedInquiry;
+    private Inquiry? submittedInquiry;
+    private string confirmedClinicName = "";
+    private string confirmedProcName = "";
 
     protected override async Task OnInitializedAsync()
     {
-        clinics = await StubCatalogService.Instance.GetClinicsAsync();
+        clinics = await CatalogService.GetClinicsAsync();
 
         if (ClinicId.HasValue && ClinicId.Value > 0)
         {
@@ -242,13 +247,17 @@
     private void UpdateAvailableProcedures()
     {
         var selClinic = clinics.FirstOrDefault(c => c.Id == model.ClinicId);
-        availableProcedures = selClinic?.Procedures ?? new List<ProcedureItem>();
+        availableProcedures = selClinic?.Procedures ?? new List<Procedure>();
     }
 
     private async Task HandleValidSubmit()
     {
-        // TODO(contract #3): Consumes InquiryService.SubmitAsync once backend branch lands.
-        submittedInquiry = await StubInquiryService.Instance.SubmitAsync(
+        var selClinic = clinics.FirstOrDefault(c => c.Id == model.ClinicId);
+        confirmedClinicName = selClinic?.Name ?? "Selected Clinic";
+        var selProc = availableProcedures.FirstOrDefault(p => p.Id == model.ProcedureId);
+        confirmedProcName = selProc != null ? $"{selProc.Type} (₱{selProc.PricePhp:N0} PHP)" : "Dental Procedure";
+
+        submittedInquiry = await InquiryService.SubmitAsync(
             model.ClinicId,
             model.ProcedureId,
             model.PatientName,

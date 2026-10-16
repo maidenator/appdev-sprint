@@ -1,6 +1,24 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
-    </Found>
-</Router>
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    <div class="card p-5 text-center my-5 shadow-sm rounded-4 bg-white border-0">
+                        <div class="mb-3 fs-1 text-warning">🔒</div>
+                        <h3 class="fw-bold text-dark">Clinic Admin Authorization Required</h3>
+                        <p class="text-muted">You must be logged in as an authorized Clinic Administrator to view the inquiries inbox.</p>
+                        <div class="d-flex justify-content-center gap-3 mt-3">
+                            <a href="Identity/Account/Login?returnUrl=/admin" class="btn btn-primary" style="background-color: #00627d; border-color: #004d61;">
+                                Login to Clinic Portal
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary">
+                                Return to Home
+                            </a>
+                        </div>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+    </Router>
+</CascadingAuthenticationState>

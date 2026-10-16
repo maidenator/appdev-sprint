@@ -1,14 +1,13 @@
-@page "/admin"
+﻿@page "/admin"
 @page "/admin/inbox"
+@attribute [Authorize(Roles = "ClinicAdmin")]
 @using appdev_sprint.Components.Shared
-@using appdev_sprint.Components.Shared.Stubs
+@using appdev_sprint.Models
+@using appdev_sprint.Services
+@inject InquiryService InquiryService
+@inject ClinicCatalogService CatalogService
 
 <PageTitle>Clinic Admin Inbox & Patient Inquiries — Cebu Dental Hub</PageTitle>
-
-@*
-    TODO(contract #1/#2/#3): Will sit behind [Authorize(Roles = "ClinicAdmin")]
-    gate once backend Identity branch lands.
-*@
 
 <div class="mb-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center">
@@ -18,7 +17,7 @@
         </div>
         <div class="mt-2 mt-sm-0">
             <span class="badge bg-success-subtle text-success border border-success p-2">
-                <i class="bi bi-circle-fill small me-1"></i> Live Portal Ready
+                <i class="bi bi-shield-lock-fill me-1"></i> Authorized: ClinicAdmin Role Active
             </span>
         </div>
     </div>
@@ -169,11 +168,11 @@
                     <div class="row g-3 p-3 rounded-2 bg-light small mb-2">
                         <div class="col-md-4">
                             <span class="text-muted d-block">Target Clinic:</span>
-                            <strong class="text-dark">@inq.ClinicName</strong>
+                            <strong class="text-dark">@(inq.Clinic?.Name ?? $"Clinic #{inq.ClinicId}")</strong>
                         </div>
                         <div class="col-md-4">
                             <span class="text-muted d-block">Procedure:</span>
-                            <strong class="text-dark">@inq.ProcedureName</strong>
+                            <strong class="text-dark">@(inq.Procedure != null ? $"{inq.Procedure.Type} (₱{inq.Procedure.PricePhp:N0})" : $"Procedure #{inq.ProcedureId}")</strong>
                         </div>
                         <div class="col-md-4">
                             <span class="text-muted d-block">Preferred Date & Party:</span>
@@ -233,7 +232,7 @@ else
                             <td><span class="badge badge-system">@c.ImplantSystems</span></td>
                             <td>
                                 <span class="badge bg-secondary">@c.Procedures.Count Procedures</span>
-                                <span class="small text-muted ms-1">from ₱@c.Procedures.Min(p => p.PricePhp).ToString("N0")</span>
+                                <span class="small text-muted ms-1">from ₱@(c.Procedures.Count > 0 ? c.Procedures.Min(p => p.PricePhp).ToString("N0") : "0")</span>
                             </td>
                             <td class="small text-muted">@c.Contact</td>
                         </tr>
@@ -246,9 +245,9 @@ else
 
 @code {
     private string activeTab = "inbox";
-    private List<InquiryItem> inquiries = new();
-    private List<InquiryItem> filteredInquiries = new();
-    private List<ClinicDetail> catalogClinics = new();
+    private List<Inquiry> inquiries = new();
+    private List<Inquiry> filteredInquiries = new();
+    private List<Clinic> catalogClinics = new();
     private InquiryStatus? selectedFilterStatus;
 
     protected override async Task OnInitializedAsync()
@@ -258,9 +257,8 @@ else
 
     private async Task LoadData()
     {
-        // TODO(contract #1/#3): Sits behind backend Identity & InquiryService
-        inquiries = await StubInquiryService.Instance.GetInboxAsync();
-        catalogClinics = await StubCatalogService.Instance.GetClinicsAsync();
+        inquiries = await InquiryService.GetInboxAsync();
+        catalogClinics = await CatalogService.GetClinicsAsync();
         ApplyFilter();
     }
 
@@ -284,7 +282,7 @@ else
 
     private async Task UpdateInquiryStatus(int id, InquiryStatus newStatus)
     {
-        await StubInquiryService.Instance.UpdateStatusAsync(id, newStatus);
+        await InquiryService.UpdateStatusAsync(id, newStatus);
         await LoadData();
     }
 }

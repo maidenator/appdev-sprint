@@ -1,6 +1,8 @@
-@page "/clinics/{Id:int}"
+﻿@page "/clinics/{Id:int}"
 @using appdev_sprint.Components.Shared
-@using appdev_sprint.Components.Shared.Stubs
+@using appdev_sprint.Models
+@using appdev_sprint.Services
+@inject ClinicCatalogService CatalogService
 
 <PageTitle>@(clinic != null ? $"{clinic.Name} — Metro Cebu Dental" : "Clinic Details — Cebu Dental Tourism Hub")</PageTitle>
 
@@ -268,7 +270,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        clinic = await StubCatalogService.Instance.GetDetailAsync(Id);
+        clinic = await CatalogService.GetDetailAsync(Id);
         if (clinic != null)
         {
             clinicPins = new List<ClinicPin>
