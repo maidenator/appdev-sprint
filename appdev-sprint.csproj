@@ -17,5 +17,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Keep the xUnit project out of the Web SDK's **/*.cs glob. -->
+    <Compile Remove="tests/**/*.cs" />
+    <Content Remove="tests/**/*" />
+    <None Remove="tests/**/*" />
+    <EmbeddedResource Remove="tests/**/*" />
+  </ItemGroup>
 
 </Project>
