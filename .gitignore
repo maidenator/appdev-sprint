@@ -1,0 +1,28 @@
+## Build output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+*.user
+*.suo
+.vs/
+
+## Local databases (each worktree keeps its own — never commit)
+*.db
+*.db-shm
+*.db-wal
+
+## NuGet
+*.nupkg
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Publish
+[Pp]ublish/
+PublishProfiles/
+
+## OS
+.DS_Store
+Thumbs.db
+Desktop.ini

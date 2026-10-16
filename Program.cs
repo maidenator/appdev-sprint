@@ -1,4 +1,7 @@
 using appdev_sprint.Components;
+using appdev_sprint.Data;
+using appdev_sprint.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,7 +9,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=appdev.db"));
+builder.Services.AddScoped<ClinicCatalogService>();
+builder.Services.AddScoped<InquiryService>();
+
 var app = builder.Build();
+
+// Apply migrations and seed demo data (each worktree keeps its own appdev.db).
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+    SeedData.Initialize(db);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
