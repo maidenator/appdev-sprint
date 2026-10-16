@@ -21,6 +21,10 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+// Required by CascadingAuthenticationState + AuthorizeRouteView in Routes.razor.
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddScoped<ClinicCatalogService>();
 builder.Services.AddScoped<InquiryService>();
 

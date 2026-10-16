@@ -27,9 +27,9 @@ Run with: `dotnet run --urls http://localhost:<port>` from your own worktree.
 
 | # | Task | Owner | Branch | Files owned | Status |
 |---|------|-------|--------|-------------|--------|
-| 1 | EF Core + SQLite + entities + seed (6 Cebu clinics, PHP prices) | opencode-db | agent/opencode-db | `Models/`, `Data/`, migrations | IN PROGRESS |
-| 2 | Identity + ClinicAdmin role + /admin gate | opencode-db | agent/opencode-db | `Areas/Identity/`, `Program.cs` (auth section), `Pages/`, `Data/IdentitySeed.cs` | IN PROGRESS |
-| 3 | Inquiry model + service + home-price anchors | opencode-db | agent/opencode-db | `Services/`, `Models/Inquiry.cs`, `Models/HomePriceAnchor.cs` | OPEN |
+| 1 | EF Core + SQLite + entities + seed (6 Cebu clinics, PHP prices) | opencode-db | agent/opencode-db | `Models/`, `Data/`, migrations | DONE |
+| 2 | Identity + ClinicAdmin role + /admin gate | opencode-db | agent/opencode-db | `Areas/Identity/`, `Program.cs` (auth section), `Pages/`, `Data/IdentitySeed.cs` | DONE |
+| 3 | Inquiry model + service + home-price anchors | opencode-db | agent/opencode-db | `Services/`, `Models/Inquiry.cs`, `Models/HomePriceAnchor.cs` | DONE |
 | 4 | Leaflet map component + Cebu pins + filters | antigravity-ui | agent/antigravity-ui | `Components/Shared/Map*`, `wwwroot/js/map.js` | DONE |
 | 5 | Public pages: Home, Clinics, Detail, Compare | antigravity-ui | agent/antigravity-ui | `Components/Pages/`, `Components/Layout/` (nav links only) | DONE |
 | 6 | Inquiry form UI (`Request.razor`) | antigravity-ui | agent/antigravity-ui | `Components/Pages/Request.razor` — calls backend service, no own persistence | DONE |
