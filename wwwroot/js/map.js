@@ -3,6 +3,15 @@
 
 window.cebuMaps = window.cebuMaps || {};
 
+// Muted look without a tile API key: desaturate OSM tiles, keep labels legible.
+function ensureMutedTileStyle() {
+    if (document.getElementById('cebu-tile-style')) return;
+    const style = document.createElement('style');
+    style.id = 'cebu-tile-style';
+    style.textContent = '.cebu-leaflet-map-wrapper .leaflet-tile-pane { filter: grayscale(1) contrast(1.05); }';
+    document.head.appendChild(style);
+}
+
 // Ensure Leaflet styles and scripts are loaded dynamically if not in head
 function ensureLeafletLoaded() {
     return new Promise((resolve, reject) => {
@@ -61,6 +70,7 @@ function createCustomPinIcon(isHighlighted) {
 window.cebuMapInterop = {
     initMap: async function (elementId, dotNetRef, pins) {
         await ensureLeafletLoaded();
+        ensureMutedTileStyle();
 
         const container = document.getElementById(elementId);
         if (!container) return;
@@ -85,11 +95,10 @@ window.cebuMapInterop = {
             scrollWheelZoom: true
         });
 
-        // Muted light basemap (CARTO, keyless, free) — low color to keep focus on pins
-        window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        // Muted OSM tiles via CSS grayscale (keyless — CARTO now requires an API key)
+        window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a>'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         window.cebuMaps[elementId] = {
